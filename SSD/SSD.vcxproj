@@ -131,7 +131,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Nand.cpp" />
     <ClCompile Include="SSD.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IIoInterface.h" />
+    <ClInclude Include="Nand.h" />
+    <ClInclude Include="SSD.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

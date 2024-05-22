@@ -7,8 +7,8 @@ using namespace testing;
 
 class IoInterfaceMock : public IIoInterface {
 public:
-	MOCK_METHOD(int, read, (), (override));
-	MOCK_METHOD(void, write, (), (override));
+	MOCK_METHOD(int, read, (int address), (override));
+	MOCK_METHOD(void, write, (int address, int data), (override));
 };
 
 class SSDTest : public testing::Test {
@@ -22,7 +22,8 @@ TEST_F(SSDTest, TestName) {
   EXPECT_TRUE(true);
 }
 
-TEST_F(SSDTest, TEST1) {
+TEST_F(SSDTest, Read) {
+	EXPECT_CALL(mock, read(1)).WillOnce(Return(0));
 	int address = 1;
 	int ret = ssd.read(1);
 	EXPECT_EQ(ret, 0);
