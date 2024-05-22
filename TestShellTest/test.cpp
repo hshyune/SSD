@@ -37,7 +37,7 @@ TEST(TestCaseName, TEST_SHELL_READ_UNWRITTEN_LBA) {
 	int address = 0x0;
 	int times = 3;
 	int expectedData = 0x0;
-	int resultData = mock.read(address, times);
+	int resultData = mock.read(address);
 
 	EXPECT_EQ(expectedData, resultData);
 }
@@ -49,7 +49,19 @@ TEST(TestCaseName, TEST_SHELL_READ_WRITTEN_LBA) {
 	int times = 3;
 	int expectedData = 0x12345678;
 	mock.write(address, expectedData);
-	int resultData = mock.read(address, times);
+	int resultData = mock.read(address);
 
 	EXPECT_EQ(expectedData, resultData);
 }
+
+TEST(TestCaseName, TEST_SHELL_FULL_WRITE) {
+	TestShellMock mock;
+	int data = {};
+	mock.fullwrite(data);
+}
+
+TEST(TestCaseName, TEST_SHELL_FULL_READ) {
+	TestShellMock mock;
+	mock.fullread();
+}
+
