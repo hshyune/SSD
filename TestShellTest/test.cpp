@@ -1,6 +1,7 @@
 ﻿#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "../TestShell/TestShell.cpp"
+#include <stdexcept>
 
 using namespace std;
 using namespace testing;
@@ -37,7 +38,7 @@ TEST(TestCaseName, TEST_SHELL_READ_UNWRITTEN_LBA) {
 	int address = 0x0;
 	int times = 3;
 	int expectedData = 0x0;
-	int resultData = mock.read(address, times);
+	int resultData = mock.read(address);
 
 	EXPECT_EQ(expectedData, resultData);
 }
@@ -49,7 +50,29 @@ TEST(TestCaseName, TEST_SHELL_READ_WRITTEN_LBA) {
 	int times = 3;
 	int expectedData = 0x12345678;
 	mock.write(address, expectedData);
-	int resultData = mock.read(address, times);
+	int resultData = mock.read(address);
 
 	EXPECT_EQ(expectedData, resultData);
 }
+
+TEST(TestCaseName, TEST_SHELL_WRITE_SUCCESS) {
+	TestShellMock mock;
+
+	EXPECT_CALL(mock, write(5, 0x12345678))
+		.Times(1);
+
+	mock.write(5, 0x12345678);
+}
+
+TEST(TestCaseName, TEST_SHELL_WRITE_INVLIAD_LBA) {
+	TestShellMock mock;
+
+	EXPECT_THROW(mock.write(999, 0x123), invalid_argument);
+}
+
+TEST(TestCaseName, TEST_SHELL_WRITE_INVLIAD_DATA) {
+	TestShellMock mock;
+
+	EXPECT_THROW(mock.write(5, 0xFFFFFFFF0), invalid_argument);
+}
+
