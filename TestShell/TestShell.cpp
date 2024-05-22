@@ -1,37 +1,37 @@
-class TestShell {
+ï»¿class TestShell {
 public:
 	void write(int address, int data) {
 		/*
-		3¹ø LBA ¿¡ 0xAAAABBBB ¸¦ ±â·ÏÇÑ´Ù.
-		ssd ¿¡ ¸í·É¾î¸¦ Àü´ÞÇÑ´Ù
+		3ë²ˆ LBA ì— 0xAAAABBBB ë¥¼ ê¸°ë¡í•œë‹¤.
+		ssd ì— ëª…ë ¹ì–´ë¥¼ ì „ë‹¬í•œë‹¤
 		*/
 	}
 
-	int read(int address) {
-		//3¹ø LBA ¸¦ ÀÐ´Â´Ù.
-		//ssd ¿¡ ¸í·É¾î¸¦ Àü´ÞÇÑ´Ù.
-		//result.txt ¿¡ ÀûÈù °á°ú¸¦ È­¸é¿¡ Ãâ·ÂÇÑ´Ù.
+	int read(int address, int times) {
+		//times íšŸìˆ˜ë§Œí¼ LBA ë¥¼ ì½ëŠ”ë‹¤.
+		//ssd ì— ëª…ë ¹ì–´ë¥¼ ì „ë‹¬í•œë‹¤.
+		//result.txt ì— ì ížŒ ê²°ê³¼ë¥¼ í™”ë©´ì— ì¶œë ¥í•œë‹¤.
 		return 0;
 	}
 
 	void exit() {
-		// Shell ÀÌ Á¾·áµÈ´Ù
+		// Shell ì´ ì¢…ë£Œëœë‹¤
 	}
 
 	void help() {
-		// °¢ ¸í·É¾î´ç »ç¿ë ¹æ¹ýÀ» Ãâ·ÂÇÑ´Ù
+		// ê° ëª…ë ¹ì–´ë‹¹ ì‚¬ìš© ë°©ë²•ì„ ì¶œë ¥í•œë‹¤
 	}
 
 	void fullwrite(int data) {
-		//LBA 0 ¹øºÎÅÍ 99 ¹ø ±îÁö Write¸¦ ¼öÇàÇÑ´Ù.
-		//ssd ÀüÃ¼¿¡ °ªÀÌ ½áÁø´Ù.
+		//LBA 0 ë²ˆë¶€í„° 99 ë²ˆ ê¹Œì§€ Writeë¥¼ ìˆ˜í–‰í•œë‹¤.
+		//ssd ì „ì²´ì— ê°’ì´ ì¨ì§„ë‹¤.
 		//ex) fullwrite 0xABCDFFFF
-		//¸ðµç LBA¿¡ °ª 0xABCDFFF °¡ ÀûÈù´Ù.
+		//ëª¨ë“  LBAì— ê°’ 0xABCDFFF ê°€ ì ížŒë‹¤.
 	}
 	void  fullread() {
-		//LBA 0 ¹øºÎÅÍ 99 ¹ø ±îÁö Read¸¦ ¼öÇàÇÑ´Ù.
-		//ssd ÀüÃ¼ °ªÀ» ¸ðµÎ È­¸é¿¡ Ãâ·ÂÇÑ´Ù.
+		//LBA 0 ë²ˆë¶€í„° 99 ë²ˆ ê¹Œì§€ Readë¥¼ ìˆ˜í–‰í•œë‹¤.
+		//ssd ì „ì²´ ê°’ì„ ëª¨ë‘ í™”ë©´ì— ì¶œë ¥í•œë‹¤.
 		//ex) fullread
-		//¸ðµç LBAÀÇ °ªµéÀÌ È­¸é¿¡ Ãâ·ÂµÈ´Ù
+		//ëª¨ë“  LBAì˜ ê°’ë“¤ì´ í™”ë©´ì— ì¶œë ¥ëœë‹¤
 	}
 };

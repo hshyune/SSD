@@ -31,3 +31,25 @@ TEST(TestCaseName, TEST_SHELL_EXIT_HELP) {
 	mock.help();
 }
 
+TEST(TestCaseName, TEST_SHELL_READ_UNWRITTEN_LBA) {
+	TestShellMock mock;
+
+	int address = 0x0;
+	int times = 3;
+	int expectedData = 0x0;
+	int resultData = mock.read(address, times);
+
+	EXPECT_EQ(expectedData, resultData);
+}
+
+TEST(TestCaseName, TEST_SHELL_READ_WRITTEN_LBA) {
+	TestShellMock mock;
+
+	int address = 0x0;
+	int times = 3;
+	int expectedData = 0x12345678;
+	mock.write(address, expectedData);
+	int resultData = mock.read(address, times);
+
+	EXPECT_EQ(expectedData, resultData);
+}
