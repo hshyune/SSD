@@ -28,8 +28,7 @@ public:
 		// 각 명령어당 사용 방법을 출력한다
 		int lineCnt = 0;
 
-		//ifstream file("../TestShell/help.txt");
-		ifstream file("help.txt");
+		ifstream file("../TestShell/help.txt");
 		string line = "";
 		if (file.is_open()) {
 			while (getline(file, line)) {
