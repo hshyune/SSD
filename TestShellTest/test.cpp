@@ -77,6 +77,7 @@ TEST(TestCaseName, TEST_SHELL_WRITE_INVLIAD_DATA) {
 	TestShellMock mock;
 
 	EXPECT_THROW(mock.write(5, 0xFFFFFFFF0), invalid_argument);
+}
 
 TEST(TestCaseName, TEST_SHELL_FULL_WRITE) {
 	TestShellMock mock;
