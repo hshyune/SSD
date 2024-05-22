@@ -4,6 +4,11 @@
 #include "SSD.h"
 #include "Nand.h"
 
-static ISSDInterface* GetNandSSD() {
-	return new SSD(new Nand());
-}
+class SSDFactory {
+public:
+	static ISSDInterface* CreateNandSSD() {
+		return new SSD(new Nand());
+
+	}
+
+};
