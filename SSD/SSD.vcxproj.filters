@@ -44,5 +44,11 @@
     <ClInclude Include="SSD.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ISSDInterface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ssd_factory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
