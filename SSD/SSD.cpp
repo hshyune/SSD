@@ -1,9 +1,11 @@
-class SSD {
-public:
-	int read(int address) {
-		return 0;
-	}
-	void write(int address, int data) {
-		return;
-	}
-};
+﻿#include "SSD.h"
+
+SSD::SSD(IIoInterface* ioInterface) {
+	this->ioInterface = ioInterface;
+}
+std::string SSD::read(int address) {
+	return ioInterface->read(address);
+}
+void SSD::write(int address, const std::string& data) {
+	ioInterface->write(address, data);
+}

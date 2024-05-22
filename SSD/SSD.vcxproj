@@ -130,7 +130,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Nand.cpp" />
     <ClCompile Include="SSD.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IIoInterface.h" />
+    <ClInclude Include="ISSDInterface.h" />
+    <ClInclude Include="Nand.h" />
+    <ClInclude Include="SSD.h" />
+    <ClInclude Include="ssd_factory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
