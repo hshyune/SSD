@@ -37,7 +37,7 @@ TEST(TestCaseName, TEST_SHELL_READ_UNWRITTEN_LBA) {
 	int address = 0x0;
 	int times = 3;
 	int expectedData = 0x0;
-	int resultData = mock.read(address);
+	int resultData = mock.read(address, times);
 
 	EXPECT_EQ(expectedData, resultData);
 }
