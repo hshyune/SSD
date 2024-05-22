@@ -9,7 +9,7 @@ using namespace testing;
 class TestShellMock : public TestShell {
 public:
 	MOCK_METHOD(void, write, (int address, int data), ());
-	MOCK_METHOD(int, read, (int address), ());
+	MOCK_METHOD(int, read, (int address, int times), ());
 	MOCK_METHOD(void, exit, (), ());
 	MOCK_METHOD(void, help, (), ());
 	MOCK_METHOD(void, fullwrite, (int data), ());
@@ -50,7 +50,10 @@ TEST(TestCaseName, TEST_SHELL_READ_WRITTEN_LBA) {
 	int times = 3;
 	int expectedData = 0x12345678;
 	mock.write(address, expectedData);
-	int resultData = mock.read(address);
+	EXPECT_CALL(mock, read).WillOnce(Return(expectedData));
+	int resultData = mock.read(address, times);
+
+
 
 	EXPECT_EQ(expectedData, resultData);
 }
@@ -74,5 +77,15 @@ TEST(TestCaseName, TEST_SHELL_WRITE_INVLIAD_DATA) {
 	TestShellMock mock;
 
 	EXPECT_THROW(mock.write(5, 0xFFFFFFFF0), invalid_argument);
+
+TEST(TestCaseName, TEST_SHELL_FULL_WRITE) {
+	TestShellMock mock;
+	int data = {};
+	mock.fullwrite(data);
+}
+
+TEST(TestCaseName, TEST_SHELL_FULL_READ) {
+	TestShellMock mock;
+	mock.fullread();
 }
 
