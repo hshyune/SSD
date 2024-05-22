@@ -1,4 +1,4 @@
-class TestShell {
+﻿class TestShell {
 public:
 	void write(int address, int data) {
 		/*
@@ -7,8 +7,8 @@ public:
 		*/
 	}
 
-	int read(int address) {
-		//3번 LBA 를 읽는다.
+	int read(int address, int times) {
+		//times 횟수만큼 LBA 를 읽는다.
 		//ssd 에 명령어를 전달한다.
 		//result.txt 에 적힌 결과를 화면에 출력한다.
 		return 0;

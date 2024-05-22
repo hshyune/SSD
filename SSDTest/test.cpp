@@ -12,3 +12,4 @@ TEST(SSD_READ, TEST1) {
 	int ret = ssd->read(1);
 	EXPECT_EQ(ret, 0);
 }
+
