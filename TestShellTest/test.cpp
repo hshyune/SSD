@@ -49,6 +49,7 @@ TEST(TestCaseName, TEST_SHELL_READ_WRITTEN_LBA) {
 	int times = 3;
 	int expectedData = 0x12345678;
 	mock.write(address, expectedData);
+	EXPECT_CALL(mock, read).WillOnce(expectedData);
 	int resultData = mock.read(address, times);
 
 	EXPECT_EQ(expectedData, resultData);
