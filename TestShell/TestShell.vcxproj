@@ -131,9 +131,9 @@
     <None Include="SSD.exe" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Exception.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SSDRunner.cpp" />
-
     <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
   <ItemGroup>
