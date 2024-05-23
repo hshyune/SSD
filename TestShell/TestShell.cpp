@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "../TestShellTest/Exception.cpp""
 #include "../SSD/SSD.h"
 using namespace std;
 
@@ -18,7 +19,7 @@ public:
 	}
 
 	void exit() {
-		// Shell 이 종료된다
+		throw ExceptionExitProgram("프로그램을 종료합니다.");
 	}
 
 	int help() {

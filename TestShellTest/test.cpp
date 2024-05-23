@@ -94,3 +94,7 @@ TEST_F(FixtureTestShellMock, TEST_SHELL_FULL_READ_Call) {
 
 	mock.fullread();
 }
+
+TEST_F(FixtureTestShell, TEST_SHELL_EXIT) {
+	EXPECT_THROW(testShell.exit(), ExceptionExitProgram);
+}

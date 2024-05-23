@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <exception>
 using namespace std;
 
 class ExceptionInvalidCommand : public exception
@@ -34,5 +35,12 @@ public:
 	char const* what() const override
 	{
 		"파라미터 Format이 정상적이지 않습니다.";
+	}
+};
+
+class ExceptionExitProgram : public exception {
+public:
+	explicit ExceptionExitProgram(char const* _msg) :exception(_msg) {
+
 	}
 };
