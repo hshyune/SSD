@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <sstream>
 #include "SSDRunner.cpp"
 using namespace std;
 
@@ -77,7 +79,62 @@ public:
 	}
 
 	void run() {
+		// run
+		bool isRunning = true;
+		while (isRunning) {
+			// input command
+			string input = "";
+			cout << "input : ";
+			getline(cin, input);
 
+			// split string
+			istringstream iss(input);
+			string tmp;
+			vector<string> args;
+			while (getline(iss, tmp, ' ')) {
+				args.push_back(tmp);
+			}
+			// validation
+
+			string cmd = args.at(0);
+			if (cmd == "read") {
+				int addr = stoi(args.at(1));
+				this->read(addr);
+				// read result.txt
+				ifstream file("../TestShell/result.txt");
+				string line = "";
+				if (file.is_open()) {
+					while (getline(file, line)) {
+						cout << line << endl;
+					}
+					file.close();
+				}
+				else {
+					cerr << "Unable to open help.txt!" << endl;
+				}
+			}
+			else if (cmd == "write") {
+				int addr = stoi(args.at(1));
+				string data = args.at(2);
+				this->write(addr, data);
+			}
+			else if (cmd == "help") {
+				this->help();
+			}
+			else if (cmd == "exit") {
+				isRunning = false;
+			}
+			else if (cmd == "fullread") {
+				this->fullread();
+			}
+			else if (cmd == "fullwrite") {
+				string data = args.at(1);
+				this->fullwrite(data);
+			}
+			else {
+
+			}
+		}
 	}
 
 private:
