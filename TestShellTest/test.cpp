@@ -9,7 +9,7 @@ using namespace testing;
 class TestShellMock : public TestShell {
 public:
 	MOCK_METHOD(void, write, (int address, string data), ());
-	MOCK_METHOD(string, read, (int address, int times), ());
+	MOCK_METHOD(string, read, (int address), ());
 	MOCK_METHOD(void, exit, (), ());
 	MOCK_METHOD(int, help, (), ());
 	MOCK_METHOD(void, fullwrite, (string data), ());
@@ -47,22 +47,20 @@ TEST_F(FixtureTestShell, TEST_SHELL_HELP_READLINES) {
 
 TEST_F(FixtureTestShellMock, TEST_SHELL_READ_UNWRITTEN_LBA) {
 	int address = 0x0;
-	int times = 3;
 	string expectedData = "0x0";
 
 	EXPECT_CALL(mock, read).WillOnce(Return(expectedData));
-	string resultData = mock.read(address, times);
+	string resultData = mock.read(address);
 	EXPECT_EQ(expectedData, resultData);
 }
 
 TEST_F(FixtureTestShellMock, TEST_SHELL_READ_WRITTEN_LBA) {
 	int address = 0x0;
-	int times = 3;
 	string expectedData = "0x12345678";
 
 	mock.write(address, expectedData);
 	EXPECT_CALL(mock, read).WillOnce(Return(expectedData));
-	string resultData = mock.read(address, times);
+	string resultData = mock.read(address);
 	EXPECT_EQ(expectedData, resultData);
 }
 

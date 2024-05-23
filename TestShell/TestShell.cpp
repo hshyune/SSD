@@ -14,22 +14,13 @@ public:
 		*/
 	}
 
-	string read(int address, int times) {
-		//times 횟수만큼 LBA 를 읽는다.
-
+	string read(int address) {
 		// TODO: 임의로 IIoInterface를 넣어 구현, 추후에 실제 SSD로 inteface 수정 필요
 		IIoInterface* ioInterface{};
 		SSD ssd(ioInterface);
-		string data = "";
 
-		//ssd 에 명령어를 전달한다.
-		for (int i = 0; i < times; ++i) {
-			//result.txt 에 적힌 결과를 화면에 출력한다.
-			data += ssd.read(address);
-			data += '\n';
-		}
-
-		return data;
+		//ssd 에 명령어를 전달한다 + result.txt 에 결과를 출력한다.
+		return ssd.read(address);
 	}
 
 	void exit() {
