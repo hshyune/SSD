@@ -1,5 +1,5 @@
 ﻿#pragma once
-﻿#include <string>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include "../SSD/SSD.h"
@@ -7,14 +7,14 @@ using namespace std;
 
 class TestShell {
 public:
-	void write(int address, int data) {
+	void write(int address, string data) {
 		/*
 		3번 LBA 에 0xAAAABBBB 를 기록한다.
 		ssd 에 명령어를 전달한다
 		*/
 	}
 
-	int read(int address, int times) {
+	string read(int address, int times) {
 		//times 횟수만큼 LBA 를 읽는다.
 
 		// TODO: 임의로 IIoInterface를 넣어 구현, 추후에 실제 SSD로 inteface 수정 필요
@@ -24,15 +24,12 @@ public:
 
 		//ssd 에 명령어를 전달한다.
 		for (int i = 0; i < times; ++i) {
-			// TODO: 읽은 횟수 만큼은 data를 다 보여주도록 구현, 추후에 데이터를 한번만 보여줄거면 수정 필요
+			//result.txt 에 적힌 결과를 화면에 출력한다.
 			data += ssd.read(address);
 			data += '\n';
 		}
 
-		//result.txt 에 적힌 결과를 화면에 출력한다.
-		updateResultTxt(data);
-
-		return 0;
+		return data;
 	}
 
 	void exit() {
@@ -58,7 +55,7 @@ public:
 		return lineCnt;
 	}
 
-	void fullwrite(int data) {
+	void fullwrite(string data) {
 		//LBA 0 번부터 99 번 까지 Write를 수행한다.
 		//ssd 전체에 값이 써진다.
 		//ex) fullwrite 0xABCDFFFF
@@ -69,16 +66,5 @@ public:
 		//ssd 전체 값을 모두 화면에 출력한다.
 		//ex) fullread
 		//모든 LBA의 값들이 화면에 출력된다
-	}
-
-	void updateResultTxt(string data)
-	{
-		ofstream file("result.txt");
-		if (!file) {
-			cout << "Cannot open file" << endl;
-			return;
-		}
-		file << data << "\n";
-		file.close();
 	}
 };
