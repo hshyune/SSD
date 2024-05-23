@@ -7,12 +7,13 @@ using namespace std;
 
 class Nand : public IIoInterface {
 public:
-	string read(int address) override;
-	void write(int address, const string& data) override;
+    Nand(const string& fileName = "nand.txt");
+    string read(int address) override;
+    void write(int address, const string& data) override;
+    map<int, string> LoadMapFromFile();
+    void SaveMapToFile(map<int, string> data);
 
 private:
-	map<int, string> LoadMapFromFile();
-	void SaveMapToFile(map<int, string> data);
-	const char* fileName = "nand.txt";
+    string fileName;
 };
 
