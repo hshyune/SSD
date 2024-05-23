@@ -8,10 +8,9 @@ using namespace std;
 class TestShell {
 public:
 	void write(int address, string data) {
-		/*
-		3번 LBA 에 0xAAAABBBB 를 기록한다.
-		ssd 에 명령어를 전달한다
-		*/
+		IIoInterface* ioInterface{};
+		SSD ssd(ioInterface);
+		ssd.write(address, data);
 	}
 
 	string read(int address) {
