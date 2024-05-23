@@ -80,12 +80,17 @@ TEST_F(FixtureTestShellMock, TEST_SHELL_WRITE_INVLIAD_DATA) {
 	EXPECT_THROW(mock.write(5, "0xFFFFFFFF0"), invalid_argument);
 }
 
-TEST_F(FixtureTestShellMock, TEST_SHELL_FULL_WRITE) {
-	string data = "0x1234";
+TEST_F(FixtureTestShellMock, TEST_SHELL_FULL_WRITE_Call) {
+	string data = "ab";
 
+	EXPECT_CALL(mock, fullwrite(data))
+		.Times(1);
 	mock.fullwrite(data);
 }
 
-TEST_F(FixtureTestShellMock, TEST_SHELL_FULL_READ) {
+TEST_F(FixtureTestShellMock, TEST_SHELL_FULL_READ_Call) {
+	EXPECT_CALL(mock, fullread())
+		.Times(1);
+
 	mock.fullread();
 }
