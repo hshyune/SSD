@@ -8,18 +8,13 @@ using namespace std;
 class TestShell {
 public:
 	void write(int address, string data) {
-		IIoInterface* ioInterface{};
-		SSD ssd(ioInterface);
-		ssd.write(address, data);
+		ssd->write(address, data);
 	}
 
 	string read(int address) {
 		// TODO: 임의로 IIoInterface를 넣어 구현, 추후에 실제 SSD로 inteface 수정 필요
-		IIoInterface* ioInterface{};
-		SSD ssd(ioInterface);
-
 		//ssd 에 명령어를 전달한다 + result.txt 에 결과를 출력한다.
-		return ssd.read(address);
+		return ssd->read(address);
 	}
 
 	void exit() {
@@ -57,4 +52,7 @@ public:
 		//ex) fullread
 		//모든 LBA의 값들이 화면에 출력된다
 	}
+
+private:
+	ISSDInterface* ssd;
 };
