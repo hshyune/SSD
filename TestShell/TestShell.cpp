@@ -49,13 +49,35 @@ public:
 	void fullwrite(string data) {
 		//LBA 0 번부터 99 번 까지 Write를 수행한다.
 		//ssd 전체에 값이 써진다.
-		//ex) fullwrite 0xABCDFFFF
-		//모든 LBA에 값 0xABCDFFF 가 적힌다.
+		//ex) fullwrite 0xABCD'FFFF
+		//모든 LBA에 값 0xABCD'FFFF 가 적힌다.
+
+		//IIoInterface* ioInterface = new Nand();
+		IIoInterface* ioInterface;
+		SSD ssd(ioInterface);
+
+		const int LBA_SIZE = 100;
+		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
+			ssd.write(address, data);
+		}
 	}
-	void  fullread() {
+
+	void fullread() {
 		//LBA 0 번부터 99 번 까지 Read를 수행한다.
 		//ssd 전체 값을 모두 화면에 출력한다.
 		//ex) fullread
 		//모든 LBA의 값들이 화면에 출력된다
+
+		//IIoInterface* ioInterface = new Nand();
+		IIoInterface* ioInterface;
+		SSD ssd(ioInterface);
+
+		const int LBA_SIZE = 100;
+		string readData = "";
+		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
+			//readData += ssd.read(address);
+			readData += to_string(address) + "," + ssd.read(address) + "\n";
+		}
+		cout << readData << endl;
 	}
 };
