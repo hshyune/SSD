@@ -2,19 +2,19 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "../SSD/SSD.h"
+#include "SSDRunner.cpp"
 using namespace std;
 
 class TestShell {
 public:
 	void write(int address, string data) {
-		ssd->write(address, data);
+		ssd.write(address, data);
 	}
 
 	string read(int address) {
 		// TODO: 임의로 IIoInterface를 넣어 구현, 추후에 실제 SSD로 inteface 수정 필요
 		//ssd 에 명령어를 전달한다 + result.txt 에 결과를 출력한다.
-		return ssd->read(address);
+		return ssd.read(address);
 	}
 
 	void exit() {
@@ -47,12 +47,12 @@ public:
 		//모든 LBA에 값 0xABCD'FFFF 가 적힌다.
 
 		//IIoInterface* ioInterface = new Nand();
-		IIoInterface* ioInterface;
-		SSD ssd(ioInterface);
+		//IIoInterface* ioInterface;
+		//SSD ssd(ioInterface);
 
 		const int LBA_SIZE = 100;
 		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
-			ssd.write(address, data);
+			this->write(address, data);
 		}
 	}
 
@@ -63,18 +63,23 @@ public:
 		//모든 LBA의 값들이 화면에 출력된다
 
 		//IIoInterface* ioInterface = new Nand();
-		IIoInterface* ioInterface;
-		SSD ssd(ioInterface);
+		//IIoInterface* ioInterface;
+		//SSD ssd(ioInterface);
 
 		const int LBA_SIZE = 100;
 		string readData = "";
 		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
 			//readData += ssd.read(address);
-			readData += to_string(address) + "," + ssd.read(address) + "\n";
+			//readData += to_string(address) + "," + this->read(address) + "\n";
+			readData += to_string(address) + "," + this->read(address);
 		}
 		cout << readData << endl;
 	}
 
+	void run() {
+
+	}
+
 private:
-	ISSDInterface* ssd;
+	SSDRunner ssd;
 };
