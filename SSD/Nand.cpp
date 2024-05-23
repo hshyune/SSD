@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 
+Nand::Nand(const string& fileName) : fileName(fileName) {}
 
 string Nand::read(int address) {
 	ifstream file(fileName, ios::binary);
