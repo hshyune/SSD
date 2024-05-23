@@ -1,4 +1,10 @@
-﻿class TestShell {
+﻿#include <string>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class TestShell {
 public:
 	void write(int address, int data) {
 		/*
@@ -18,8 +24,23 @@ public:
 		// Shell 이 종료된다
 	}
 
-	void help() {
+	int help() {
 		// 각 명령어당 사용 방법을 출력한다
+		int lineCnt = 0;
+
+		ifstream file("../TestShell/help.txt");
+		string line = "";
+		if (file.is_open()) {
+			while (getline(file, line)) {
+				cout << line << endl;
+				lineCnt += 1;
+			}
+			file.close();
+		}
+		else {
+			cerr << "Unable to open help.txt!" << endl;
+		}
+		return lineCnt;
 	}
 
 	void fullwrite(int data) {

@@ -24,12 +24,18 @@ TEST(TestCaseName, TEST_SHELL_EXIT_CALL) {
 	mock.exit();
 }
 
-TEST(TestCaseName, TEST_SHELL_EXIT_HELP) {
+TEST(TestCaseName, TEST_SHELL_HELP_CALL) {
 	TestShellMock mock;
 
 	EXPECT_CALL(mock, help).Times(1);
 
 	mock.help();
+}
+
+TEST(TestCaseName, TEST_SHELL_HELP_READLINES) {
+	TestShell testShell;
+	int ret = testShell.help();
+	EXPECT_THAT(ret, Gt(1));
 }
 
 TEST(TestCaseName, TEST_SHELL_READ_UNWRITTEN_LBA) {
