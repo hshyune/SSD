@@ -35,7 +35,6 @@ map<int, string> Nand::LoadMapFromFile()
 	map<int, string> dataMap;
 
 	if (!file) {
-		cerr << "File could not be opened\n";
 		return dataMap;
 	}
 
@@ -65,7 +64,7 @@ void Nand::SaveMapToFile(map<int, string> data)
 	ofstream file(fileName, ios::binary | ios::trunc);
 
 	if (!file) {
-		cerr << "File could not be opened\n";
+		cerr << "Savefile failed: File could not be opened\n";
 		return;
 	}
 
