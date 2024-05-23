@@ -1,4 +1,5 @@
 ﻿#include "SSD.h"
+#include <regex>
 
 SSD::SSD(IIoInterface* ioInterface) {
 	this->ioInterface = ioInterface;
@@ -15,24 +16,8 @@ void SSD::write(int address, const std::string& data) {
 		return;
 	}
 
-	if (data.size() != 10) {
-		return;
-	}
-
-	if (data.substr(0, 2) != "0x") {
-		return;
-	}
-
-	for (int index = 2; index < 10; index++) {
-		char value = data[index];
-		if (value >= '0' && value <= '9') {
-			continue;
-		}
-
-		if (value >= 'A' && value <= 'F') {
-			continue;
-		}
-
+	std::regex pattern("^0x[0-9A-F]{8}$");
+	if (!std::regex_match(data, pattern)) {
 		return;
 	}
 
