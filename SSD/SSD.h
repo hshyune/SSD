@@ -4,6 +4,8 @@
 
 #include <string>
 
+constexpr unsigned int MAX_LBA_COUNT = 100;
+
 class SSD : public ISSDInterface {
 public:
 	SSD(IIoInterface* ioInterface);
