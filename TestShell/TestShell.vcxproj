@@ -130,6 +130,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="TestScript.cpp" />
     <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
   <ItemGroup>
