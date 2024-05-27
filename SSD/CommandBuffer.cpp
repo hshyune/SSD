@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
 
 CommandBuffer::CommandBuffer(const string& fileName) : fileName(fileName) {
 	nand = new Nand();
@@ -11,43 +10,54 @@ CommandBuffer::CommandBuffer(const string& fileName) : fileName(fileName) {
 string CommandBuffer::read(int address) {
 	ifstream file(fileName, ios::binary);
 
-	map<int, string> dataMap = LoadMapFromFile();
+	auto commandBuffer = LoadFromFile();
 
-	// If the address exists in the map, return the corresponding value
-	if (dataMap.find(address) != dataMap.end()) {
-		return dataMap[address];
+	int lastIndex = commandBuffer.size() - 1;
+	for (int index = lastIndex; index >= 0; index--) {
+		if (commandBuffer[index].type == 'W' && commandBuffer[index].address == address) {
+			return commandBuffer[index].data;
+		}
 	}
 
-	// If the address does not exist in the map, return empty string
-	return "";
+	return nand->read(address);
 }
 
 void CommandBuffer::write(int address, const string& data) {
-	map<int, string> dataMap = LoadMapFromFile();
-	// update dataMap
-	dataMap[address] = data;
+	auto commandBuffer = LoadFromFile();
 
-	SaveMapToFile(dataMap);
+	for (auto command : commandBuffer) {
+		if (command.type == 'W' && command.address == address) {
+			// erase entry
+		}
+	}
+
+	Command c;
+	c.type = 'W';
+	c.address = address;
+	c.size = 1;
+	c.data = data;
+	
+	commandBuffer.push_back(c);
+
+	SaveToFile(commandBuffer);
 }
 
 void CommandBuffer::erase(int address, int size) {
-	map<int, string> dataMap = LoadMapFromFile();
+	auto commandBuffer = LoadFromFile();
 
-	for (int i = 0; i < size; i++) {
-		dataMap.erase(address + i);
-	}
+	// delete write, erase command in current address range
 
-	SaveMapToFile(dataMap);
+	SaveToFile(commandBuffer);
 }
 
-map<int, string> CommandBuffer::LoadMapFromFile()
+vector<Command> CommandBuffer::LoadFromFile()
 {
 	ifstream file(fileName, ios::binary);
 
-	map<int, string> dataMap;
+	vector<Command> commandBuffer;
 
 	if (!file) {
-		return dataMap;
+		return commandBuffer;
 	}
 
 	string line;
@@ -55,22 +65,27 @@ map<int, string> CommandBuffer::LoadMapFromFile()
 		istringstream iss(line);
 		string keyStr, value;
 
-		// Use getline to parse the key and value separated by a comma
-		if (!getline(iss, keyStr, ',') || !(iss >> value)) {
-			cerr << "Error parsing line: " << line << "\n";
-			continue;
-		}
+		char type;
+		int address;
+		int size;
+		string data;
 
-		int key = stoi(keyStr);
-		dataMap[key] = value;
+		// need to parse file
+
+		Command c;
+		c.type = type;
+		c.address = address;
+		c.size = size;
+		c.data = data;
+		commandBuffer.push_back(c);
 	}
 
 	file.close();
 
-	return dataMap;
+	return commandBuffer;
 }
 
-void CommandBuffer::SaveMapToFile(map<int, string> data)
+void CommandBuffer::SaveToFile(vector<Command> commandBuffer)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);
@@ -80,8 +95,8 @@ void CommandBuffer::SaveMapToFile(map<int, string> data)
 		return;
 	}
 
-	for (auto& pair : data) {
-		file << pair.first << "," << pair.second << "\n";
+	for (auto& command : commandBuffer) {
+		file << command.type << "," << command.address << "," << command.size << "," << command.data << "\n";
 	}
 
 	file.close();
