@@ -5,15 +5,17 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
-#include "Exception.cpp"
+
 #include "TestScript.cpp"
 #include "TestLogger.cpp"
+#include "Command.cpp"
 using namespace std;
 
 class TestShell {
 public:
 	TestShell() {
 		testApp = nullptr;
+		this->ssdRunner = new SSDRunner();
 	}
 	~TestShell() {
 		delete testApp;
@@ -366,172 +368,96 @@ public:
 			}
 			// empty input
 			if (args.size() == 0) continue;
+
+			// validation & execution
 			string cmd = args.at(0);
 			if (cmd == "read") {
-				// read [addr]
-				// format
-				try {
-					if (args.size() != 2) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				ReadCommand* command = new ReadCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// addr validation
-				try {
-					// string to integer
-					int addr = stoi(args.at(1));
-					// range
-					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
 			else if (cmd == "write") {
-				// write [addr] [data]
-				// format
-				try {
-					if (args.size() != 3) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				WriteCommand* command = new WriteCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// addr validation
-				try {
-					// string to integer
-					int addr = stoi(args.at(1));
-					// range
-					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// data validation -> 0x00000000~0xFFFFFFFF
-				try {
-					string data = args.at(2);
-					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
-					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
-					for (int i = 2; i < 10; i++) {
-						char ch = data[i];
-						if (!(('0' <= ch && ch <= '9')
-							|| ('A' <= ch && ch <= 'F'))) {
-							throw runtime_error(this->INVALID_DATA);
-						}
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
 			else if (cmd == "exit") {
-				// exit
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				ExitCommand* command = new ExitCommand();
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+					this->isRunning = false;
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-			}
-			else if (cmd == "help") {
-				// help
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-			}
-			else if (cmd == "fullwrite") {
-				// fullwrite [data]
-				// format
-				try {
-					if (args.size() != 2) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// data validation -> 0x00000000~0xFFFFFFFF
-				try {
-					string data = args.at(1);
-					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
-					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
-					for (int i = 2; i < 10; i++) {
-						char ch = data[i];
-						if (!(('0' <= ch && ch <= '9')
-							|| ('A' <= ch && ch <= 'F'))) {
-							throw runtime_error(this->INVALID_DATA);
-						}
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-			}
-			else if (cmd == "fullread") {
-				// fullread
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-			}
-			else if (cmd == "run_list.lst") {
-			}
-			else {
-				cout << this->INVALID_COMMAND << endl;
 				continue;
 			}
-			// execution
-			if (cmd == "read") {
-				int addr = stoi(args.at(1));
-				string result = this->read(addr);
-				cout << result << endl;
-			}
-			else if (cmd == "write") {
-				int addr = stoi(args.at(1));
-				string data = args.at(2);
-				this->write(addr, data);
-			}
 			else if (cmd == "help") {
-				this->help();
-			}
-			else if (cmd == "exit") {
-				this->exit();
-			}
-			else if (cmd == "fullread") {
-				this->fullread();
+				HelpCommand* command = new HelpCommand();
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
 			}
 			else if (cmd == "fullwrite") {
-				string data = args.at(1);
-				this->fullwrite(data);
+				FullwriteCommand* command = new FullwriteCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
 			}
-			else if (cmd == "run_list.lst") {
+			else if (cmd == "fullread") {
+				FullreadCommand* command = new FullreadCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
+			}
+			else {
+				InvalidCommand* command = new InvalidCommand();
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				continue;
+			}
+
+			// execution - testScript
+			if (cmd == "run_list.lst") {
+				this->runTestList();
+
+      if (cmd == "run_list.lst") {
 				this->runTestListUsingFile();
 			}
 			else {
@@ -550,4 +476,7 @@ private:
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
+
+	CommandContoller commandContoller;
+	SSDRunner* ssdRunner;
 };
