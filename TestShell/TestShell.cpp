@@ -194,7 +194,7 @@ public:
 				// fullwrite [data]
 				// format
 				try {
-					if (args.size() != 1) {
+					if (args.size() != 2) {
 						throw runtime_error(this->INVALID_PARAMETER);
 					}
 				}
@@ -234,7 +234,8 @@ public:
 				}
 			}
 			else {
-
+				cout << this->INVALID_COMMAND << endl;
+				continue;
 			}
 			// execution
 			if (cmd == "read") {
