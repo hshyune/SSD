@@ -165,10 +165,11 @@ public:
 			}
 			// empty input
 			if (args.size() == 0) continue;
+
 			string cmd = args.at(0);
 			if (cmd == "read") {
-				ReadCommand* readCommand = new ReadCommand(this->ssdRunner);
-				commandContoller.setCommand(readCommand);
+				ReadCommand* command = new ReadCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
 
 				bool isValid = commandContoller.validate(args);
 				if (isValid) {
@@ -177,115 +178,65 @@ public:
 				else {
 					continue;
 				}
-
 			}
 			else if (cmd == "write") {
-				// write [addr] [data]
-				// format
-				try {
-					if (args.size() != 3) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				WriteCommand* command = new WriteCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// addr validation
-				try {
-					// string to integer
-					int addr = stoi(args.at(1));
-					// range
-					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// data validation -> 0x00000000~0xFFFFFFFF
-				try {
-					string data = args.at(2);
-					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
-					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
-					for (int i = 2; i < 10; i++) {
-						char ch = data[i];
-						if (!(('0' <= ch && ch <= '9')
-							|| ('A' <= ch && ch <= 'F'))) {
-							throw runtime_error(this->INVALID_DATA);
-						}
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
 			else if (cmd == "exit") {
-				// exit
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				ExitCommand* command = new ExitCommand();
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
+					this->isRunning = false;
 					continue;
 				}
 			}
 			else if (cmd == "help") {
-				// help
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				HelpCommand* command = new HelpCommand();
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
 			else if (cmd == "fullwrite") {
-				// fullwrite [data]
-				// format
-				try {
-					if (args.size() != 2) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				FullwriteCommand* command = new FullwriteCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
-				// data validation -> 0x00000000~0xFFFFFFFF
-				try {
-					string data = args.at(1);
-					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
-					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
-					for (int i = 2; i < 10; i++) {
-						char ch = data[i];
-						if (!(('0' <= ch && ch <= '9')
-							|| ('A' <= ch && ch <= 'F'))) {
-							throw runtime_error(this->INVALID_DATA);
-						}
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
 			else if (cmd == "fullread") {
-				// fullread
-				// format
-				try {
-					if (args.size() != 1) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				FullreadCommand* command = new FullreadCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
 			}
@@ -295,6 +246,7 @@ public:
 				cout << this->INVALID_COMMAND << endl;
 				continue;
 			}
+
 			// execution
 			if (cmd == "read") {
 				int addr = stoi(args.at(1));
