@@ -204,7 +204,7 @@ public:
 				}
 				// data validation -> 0x00000000~0xFFFFFFFF
 				try {
-					string data = args.at(2);
+					string data = args.at(1);
 					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
 					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
 					for (int i = 2; i < 10; i++) {
@@ -237,7 +237,6 @@ public:
 
 			}
 			// execution
-			
 			if (cmd == "read") {
 				int addr = stoi(args.at(1));
 				string result = this->read(addr);
