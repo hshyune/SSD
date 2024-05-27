@@ -3,9 +3,8 @@
 #include <sstream>
 #include <iostream>
 
-CommandBuffer::CommandBuffer(const string& fileName) : fileName(fileName) {
-	remove(fileName.c_str());
-	nand = new Nand();
+CommandBuffer::CommandBuffer(Nand* nand, const string& fileName) : fileName(fileName) {
+	this->nand = nand;
 }
 
 string CommandBuffer::read(int address) {

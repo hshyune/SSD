@@ -6,7 +6,6 @@
 
 Nand::Nand(const string& fileName) 
 	: fileName(fileName) {
-	remove(fileName.c_str());
 }
 
 string Nand::read(int address) {

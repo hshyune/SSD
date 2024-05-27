@@ -14,9 +14,8 @@ struct Command {
 
 class CommandBuffer : public IIoInterface {
 public:
-    CommandBuffer(const string& fileName = "buffer.txt");
+    CommandBuffer(Nand* nand, const string& fileName = "buffer.txt");
     virtual ~CommandBuffer() {
-		delete nand;
 	}
     string read(int address) override;
     void write(int address, const string& data) override;

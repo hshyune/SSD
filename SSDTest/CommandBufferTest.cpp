@@ -3,18 +3,24 @@
 
 class CommandBufferTest : public ::testing::Test {
 protected:
-    std::string testFileName = "test_command_buffer.txt";
+    std::string testCommandBufferFileName = "test_command_buffer.txt";
     CommandBuffer* cb;
 
+    std::string testNandFileName = "test_nand.txt";
+    Nand* nand;
+
     void SetUp() override {
-        cb = new CommandBuffer(testFileName);
-        std::ofstream file(testFileName);
+        nand = new Nand(testNandFileName);
+        cb = new CommandBuffer(nand, testCommandBufferFileName);
+        std::ofstream file(testCommandBufferFileName);
         file.close();
     }
 
     void TearDown() override {
         delete cb;
-        std::remove(testFileName.c_str());
+        std::remove(testCommandBufferFileName.c_str());
+        delete nand;
+        std::remove(testNandFileName.c_str());
     }
 };
 
@@ -51,7 +57,7 @@ TEST_F(CommandBufferTest, FlushTest_1) {
     cb->write(10, "data");
     cb->flush();
     
-    remove(testFileName.c_str()); 
+    remove(testCommandBufferFileName.c_str()); 
     
     string result = cb->read(10);
     EXPECT_EQ(result, "data");
@@ -60,7 +66,7 @@ TEST_F(CommandBufferTest, FlushTest_1) {
 TEST_F(CommandBufferTest, FlushTest_2) {
     cb->write(10, "data");
     
-    remove(testFileName.c_str());
+    remove(testCommandBufferFileName.c_str());
     
     string result = cb->read(10);
     EXPECT_EQ(result, "0x00000000");
@@ -72,7 +78,7 @@ TEST_F(CommandBufferTest, FlushTest_3) {
     cb->erase(10, 1);
     cb->flush();
 
-    remove(testFileName.c_str());
+    remove(testCommandBufferFileName.c_str());
 
     string result1 = cb->read(10);
     EXPECT_EQ(result1, "0x00000000");
