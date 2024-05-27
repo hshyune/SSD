@@ -5,6 +5,7 @@
 #include <map>
 
 CommandBuffer::CommandBuffer(const string& fileName) : fileName(fileName) {
+	nand = new Nand();
 }
 
 string CommandBuffer::read(int address) {
@@ -25,6 +26,16 @@ void CommandBuffer::write(int address, const string& data) {
 	map<int, string> dataMap = LoadMapFromFile();
 	// update dataMap
 	dataMap[address] = data;
+
+	SaveMapToFile(dataMap);
+}
+
+void CommandBuffer::erase(int address, int size) {
+	map<int, string> dataMap = LoadMapFromFile();
+
+	for (int i = 0; i < size; i++) {
+		dataMap.erase(address + i);
+	}
 
 	SaveMapToFile(dataMap);
 }

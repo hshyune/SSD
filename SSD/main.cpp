@@ -33,6 +33,15 @@ int main(int argc, char* argv[]) {
 		file << data;
 		file.close();
     }
+    else if (operation == "E") {
+        if (argc < 4) {
+            std::cout << "Insufficient arguments for erase operation" << std::endl;
+            return 1;
+        }
+        int size = std::stoi(argv[3]);
+        std::cout << "Erase data from " << address << " to " << address + size -1 << std::endl;
+        ssd->erase(address, size);
+    }
     else {
         std::cout << "Invalid operation" << std::endl;
     }
