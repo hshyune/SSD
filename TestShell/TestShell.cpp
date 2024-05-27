@@ -5,15 +5,17 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
-#include "Exception.cpp"
+
 #include "TestScript.cpp"
 #include "TestLogger.cpp"
+#include "Command.cpp"
 using namespace std;
 
 class TestShell {
 public:
 	TestShell() {
 		testApp = nullptr;
+		this->ssdRunner = new SSDRunner();
 	}
 	~TestShell() {
 		delete testApp;
@@ -165,28 +167,17 @@ public:
 			if (args.size() == 0) continue;
 			string cmd = args.at(0);
 			if (cmd == "read") {
-				// read [addr]
-				// format
-				try {
-					if (args.size() != 2) {
-						throw runtime_error(this->INVALID_PARAMETER);
-					}
+				ReadCommand* readCommand = new ReadCommand(this->ssdRunner);
+				commandContoller.setCommand(readCommand);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
 				}
-				catch (exception e) {
-					cout << e.what() << endl;
+				else {
 					continue;
 				}
-				// addr validation
-				try {
-					// string to integer
-					int addr = stoi(args.at(1));
-					// range
-					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
-				}
-				catch (exception e) {
-					cout << e.what() << endl;
-					continue;
-				}
+
 			}
 			else if (cmd == "write") {
 				// write [addr] [data]
@@ -347,4 +338,7 @@ private:
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
+
+	CommandContoller commandContoller;
+	SSDRunner* ssdRunner;
 };
