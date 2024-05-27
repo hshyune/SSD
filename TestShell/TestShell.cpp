@@ -4,10 +4,63 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <ctime>
+#include <algorithm>
+#include <cstring>
 #include "SSDRunner.cpp"
 #include "Exception.cpp"
 #include "TestScript.cpp"
 using namespace std;
+
+class Logger {
+public:
+	Logger() {
+		std::fstream fs(loggerFile, std::fstream::out);
+		fs.close();
+	}
+
+	std::string getCurrentTime() {
+		time_t rawtime;
+		struct tm* timeinfo;
+		char buffer[80]{};
+
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(buffer, 80, "[%g.%m.%d %R]", timeinfo);
+		return std::string(buffer);
+	}
+
+	std::string getCallerName(const std::string& callerName) {
+		const int fixedFunctionLength = 30;
+		char outBuffer[fixedFunctionLength + 1]{};
+		fill_n(outBuffer, fixedFunctionLength, 0x20);
+		strcpy(outBuffer, callerName.c_str());
+		if (callerName.size() < fixedFunctionLength)
+			outBuffer[callerName.size()] = 0x20;
+		outBuffer[fixedFunctionLength] = 0x0;
+		return std::string(" ") + outBuffer;
+	}
+
+	std::string getLogMessage(const std::string& logMessage) {
+		return std::string(": ") + logMessage;
+	}
+
+	void printConsoleAndFile(std::string loggerOutput) {
+		std::cout << loggerOutput << std::endl;
+		std::fstream fs(loggerFile, std::fstream::out | std::fstream::app);
+		fs << loggerOutput << std::endl;
+		fs.close();
+	}
+
+	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
+		std::string loggerOutput = getCurrentTime();
+		loggerOutput += getCallerName(std::string(str) + "()");
+		loggerOutput += getLogMessage(logMessage);
+		printConsoleAndFile(loggerOutput);
+	}
+private:
+	std::string loggerFile{ "result.txt" };
+};
 
 class TestShell {
 public:
@@ -124,7 +177,7 @@ public:
 		if (file.is_open()) {
 			while (getline(file, testName)) {
 				setTestApp(testName);
-				cout << testName << "    ---    " << "Run...";
+				cout << testName << "	---	" << "Run...";
 				switch (testApp->runTest())
 				{
 				case SUCCESS:
@@ -143,6 +196,10 @@ public:
 			cout << "Unable to open " << PATH_TESTLIST_FILE << endl;
 			return;
 		}
+	}
+
+	void loggerTest() {
+		logger.print("Bye bye");
 	}
 
 	void run() {
@@ -298,6 +355,8 @@ public:
 					continue;
 				}
 			}
+			else if (cmd == "logger") {
+			}
 			else {
 				cout << this->INVALID_COMMAND << endl;
 				continue;
@@ -329,8 +388,10 @@ public:
 			else if (cmd == "run_list.lst") {
 				this->runTestList();
 			}
+			else if (cmd == "logger") {
+				this->loggerTest();
+			}
 			else {
-
 			}
 		}
 	}
@@ -339,6 +400,7 @@ private:
 	SSDRunner ssd;
 	ITestApp* testApp;
 	bool isRunning = true;
+	Logger logger = Logger();
 
 	const string INVALID_PARAMETER = "INVALID PARAMETER";
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
