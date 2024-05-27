@@ -30,6 +30,7 @@ public:
 	void setLoglevel(LOG_LEVEL logLevel) {
 		this->logLevel = logLevel;
 	}
+
 	std::string getCurrentTime() {
 		time_t rawtime;
 		struct tm* timeinfo;
@@ -89,7 +90,7 @@ public:
 
 	void manageLogFiles() {
 		auto logFileSize = filesize();
-		if (logFileSize >= logMaxByte) {
+		if (logFileSize >= logMaxSize) {
 			std::string backupFile = std::string("until_") + getLogCurrentTime() + ".log";
 			std::rename(getLogPath(logFile).c_str(), getLogPath(backupFile).c_str());
 		}
@@ -111,7 +112,7 @@ public:
 	}
 
 private:
-	const int logMaxByte{ 1024 * 10 };
+	const int logMaxSize{ 1024 * 10 };
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
