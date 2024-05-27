@@ -12,10 +12,9 @@ string CommandBuffer::read(int address) {
 
 	auto commandBuffer = LoadFromFile();
 
-	list<Command>::iterator iter = commandBuffer.begin();
-	for(iter= commandBuffer.begin();iter!=commandBuffer.end();iter++) {
-		if (iter->type == 'W' && iter->address == address) {
-			return iter->data;
+	for (const auto& command : commandBuffer) {
+		if (command.type == 'W' && command.address == address) {
+			return command.data;
 		}
 	}
 
@@ -26,9 +25,12 @@ void CommandBuffer::write(int address, const string& data) {
 	auto commandBuffer = LoadFromFile();
 
 	list<Command>::iterator iter = commandBuffer.begin();
-	for (iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
+	for (auto iter = commandBuffer.begin(); iter != commandBuffer.end(); ) {
 		if (iter->type == 'W' && iter->address == address) {
 			iter = commandBuffer.erase(iter);
+		}
+		else {
+			++iter;
 		}
 	}
 
@@ -81,14 +83,16 @@ list<Command> CommandBuffer::LoadFromFile()
 	string line;
 	while (getline(file, line)) {
 		istringstream iss(line);
-		string keyStr, value;
+		string typeStr, addressStr, data;
 
-		char type;
-		int address;
-		string data;
+		if (!getline(iss, typeStr, ',') ||
+			!getline(iss, addressStr, ',') ||
+			!getline(iss, data, ',')) {
+			break;
+		}
 
-		// need to parse file
-
+		char type = typeStr[0];
+		int address = stoi(addressStr);
 
 		Command c;
 		c.type = type;
@@ -102,7 +106,7 @@ list<Command> CommandBuffer::LoadFromFile()
 	return commandBuffer;
 }
 
-void CommandBuffer::SaveToFile(list<Command> commandBuffer)
+void CommandBuffer::SaveToFile(const list<Command>& commandBuffer)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);
@@ -113,7 +117,7 @@ void CommandBuffer::SaveToFile(list<Command> commandBuffer)
 	}
 
 	for (auto& command : commandBuffer) {
-		file << command.type << "," << command.address << "," << command.size << "," << command.data << "\n";
+		file << command.type << "," << command.address << "," << command.data << "\n";
 	}
 
 	file.close();

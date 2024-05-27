@@ -22,7 +22,7 @@ public:
     void write(int address, const string& data) override;
     void erase(int address, int size) override;
     list<Command> LoadFromFile();
-    void SaveToFile(list<Command> commandBuffer);
+    void SaveToFile(const list<Command>& commandBuffer);
 
 private:
     string fileName;

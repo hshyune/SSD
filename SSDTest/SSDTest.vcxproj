@@ -99,6 +99,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandBufferTest.cpp" />
     <ClCompile Include="gmock_main.cc" />
     <ClCompile Include="NandTest.cpp" />
     <ClCompile Include="test.cpp" />
