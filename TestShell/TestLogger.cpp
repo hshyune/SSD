@@ -8,12 +8,18 @@
 #include <string>
 #include <algorithm>
 
-class Logger {
+class LoggerSingleton {
+	public:
+		static LoggerSingleton& getInstance() {
+			static LoggerSingleton instance{};
+			return instance;
+		}
+	private:
+		LoggerSingleton() {
+		}
+		LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
+		LoggerSingleton(const LoggerSingleton& other) = delete;
 public:
-	Logger() {
-		std::fstream fs(getLogPath(loggerFile), std::fstream::out);
-		fs.close();
-	}
 
 	std::string getCurrentTime() {
 		time_t rawtime;

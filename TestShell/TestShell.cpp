@@ -341,7 +341,7 @@ private:
 	SSDRunner ssd;
 	ITestApp* testApp;
 	bool isRunning = true;
-	Logger logger;
+	LoggerSingleton& logger{ LoggerSingleton::getInstance() };
 
 	const string INVALID_PARAMETER = "INVALID PARAMETER";
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
