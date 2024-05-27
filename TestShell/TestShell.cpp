@@ -456,8 +456,9 @@ public:
 			// execution - testScript
 			if (cmd == "run_list.lst") {
 				this->runTestList();
+			}
 
-      if (cmd == "run_list.lst") {
+			if (cmd == "run_list.lst") {
 				this->runTestListUsingFile();
 			}
 			else {
