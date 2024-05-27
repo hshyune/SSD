@@ -21,7 +21,7 @@ public:
 	}
 
 	void exit() {
-		throw ExceptionExitProgram("프로그램이 종료되었습니다.");
+		this->isRunning = false;
 	}
 
 	int help() {
@@ -81,8 +81,7 @@ public:
 
 	void run() {
 		// run
-		bool isRunning = true;
-		while (isRunning) {
+		while (this->isRunning) {
 			// input command
 			string input = "";
 			cout << "input : ";
@@ -154,8 +153,10 @@ public:
 					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
 					for (int i = 2; i < 10; i++) {
 						char ch = data[i];
-						if (ch < '0' || '9' < ch) throw runtime_error(this->INVALID_DATA);
-						else if (ch < 'A' || 'F' < ch) throw runtime_error(this->INVALID_DATA);
+						if (!(('0' <= ch && ch <= '9') 
+							|| ('A' <= ch && ch <= 'F'))) {
+							throw runtime_error(this->INVALID_DATA);
+						}
 					}
 				}
 				catch (exception e) {
@@ -163,17 +164,74 @@ public:
 					continue;
 				}
 			}
-			if (cmd == "exit") {
+			else if (cmd == "exit") {
 				// exit
+				// format
+				try {
+					if (args.size() != 1) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
 			}
-			if (cmd == "help") {
+			else if (cmd == "help") {
 				// help
+				// format
+				try {
+					if (args.size() != 1) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
 			}
-			if (cmd == "fullwrite") {
+			else if (cmd == "fullwrite") {
 				// fullwrite [data]
+				// format
+				try {
+					if (args.size() != 1) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
+				// data validation -> 0x00000000~0xFFFFFFFF
+				try {
+					string data = args.at(2);
+					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
+					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
+					for (int i = 2; i < 10; i++) {
+						char ch = data[i];
+						if (!(('0' <= ch && ch <= '9')
+							|| ('A' <= ch && ch <= 'F'))) {
+							throw runtime_error(this->INVALID_DATA);
+						}
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
 			}
-			if (cmd == "fullread") {
+			else if (cmd == "fullread") {
 				// fullread
+				// format
+				try {
+					if (args.size() != 1) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
 			}
 			else {
 
@@ -211,6 +269,7 @@ public:
 
 private:
 	SSDRunner ssd;
+	bool isRunning = true;
 
 	const string INVALID_PARAMETER = "INVALID PARAMETER";
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
