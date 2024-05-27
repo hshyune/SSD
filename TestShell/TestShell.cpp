@@ -94,24 +94,13 @@ public:
 			while (getline(iss, tmp, ' ')) {
 				args.push_back(tmp);
 			}
+			
 			// validation
 
 			string cmd = args.at(0);
 			if (cmd == "read") {
 				int addr = stoi(args.at(1));
 				this->read(addr);
-				// read result.txt
-				ifstream file("../TestShell/result.txt");
-				string line = "";
-				if (file.is_open()) {
-					while (getline(file, line)) {
-						cout << line << endl;
-					}
-					file.close();
-				}
-				else {
-					cerr << "Unable to open help.txt!" << endl;
-				}
 			}
 			else if (cmd == "write") {
 				int addr = stoi(args.at(1));
