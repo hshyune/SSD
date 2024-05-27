@@ -137,6 +137,7 @@
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SSDRunner.cpp" />
+    <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="TestScript.cpp" />
     <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
