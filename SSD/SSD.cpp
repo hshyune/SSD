@@ -23,3 +23,11 @@ void SSD::write(int address, const std::string& data) {
 
 	ioInterface->write(address, data);
 }
+
+void SSD::erase(int address, int size) {
+	if (address < 0 || address + size >= MAX_LBA_COUNT) {
+		return;
+	}
+
+	ioInterface->erase(address, size);
+}

@@ -17,13 +17,23 @@ string Nand::read(int address) {
 	}
 
 	// If the address does not exist in the map, return empty string
-	return "";
+	return "0x00000000";
 }
 
 void Nand::write(int address, const string& data) {
 	map<int, string> dataMap = LoadMapFromFile();
 	// update dataMap
 	dataMap[address] = data;
+
+	SaveMapToFile(dataMap);
+}
+
+void Nand::erase(int address, int size) {
+	map<int, string> dataMap = LoadMapFromFile();
+
+	for (int i = 0; i < size; i++) {
+		dataMap.erase(address + i);
+	}
 
 	SaveMapToFile(dataMap);
 }

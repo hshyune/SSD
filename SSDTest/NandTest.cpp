@@ -19,9 +19,9 @@ protected:
     }
 };
 TEST_F(NandTest, ReadWithoutWrite) {
-    EXPECT_EQ(nand.read(1), "");
-    EXPECT_EQ(nand.read(2), "");
-    EXPECT_EQ(nand.read(3), "");
+    EXPECT_EQ(nand.read(1), "0x00000000");
+    EXPECT_EQ(nand.read(2), "0x00000000");
+    EXPECT_EQ(nand.read(3), "0x00000000");
 }
 
 TEST_F(NandTest, WriteAndRead) {
@@ -29,7 +29,7 @@ TEST_F(NandTest, WriteAndRead) {
     nand.write(2, "world");
     EXPECT_EQ(nand.read(1), "hello");
     EXPECT_EQ(nand.read(2), "world");
-    EXPECT_EQ(nand.read(3), "");
+    EXPECT_EQ(nand.read(3), "0x00000000");
 }
 
 TEST_F(NandTest, OverwriteAndRead) {
@@ -38,7 +38,23 @@ TEST_F(NandTest, OverwriteAndRead) {
     nand.write(2, "korea");
     EXPECT_EQ(nand.read(1), "hello");
     EXPECT_EQ(nand.read(2), "korea");
-    EXPECT_EQ(nand.read(3), "");
+    EXPECT_EQ(nand.read(3), "0x00000000");
+}
+
+TEST_F(NandTest, EraseData) {
+    nand.write(1, "hello");
+    nand.write(2, "world");
+    nand.write(3, "hello2");
+    nand.write(4, "samsung");
+    nand.write(5, "elec");
+
+    nand.erase(2, 3);
+
+    EXPECT_EQ(nand.read(1), "hello");
+    EXPECT_EQ(nand.read(2), "0x00000000");
+    EXPECT_EQ(nand.read(3), "0x00000000");
+    EXPECT_EQ(nand.read(4), "0x00000000");
+    EXPECT_EQ(nand.read(5), "elec");
 }
 
 TEST_F(NandTest, LoadMapFromFile) {
