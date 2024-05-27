@@ -126,6 +126,7 @@ public:
 	}
 
 	void setTestApp(const string& testName) {
+		logger.print(testName + " 테스트를 등록");
 		if (testName == "testapp1") {
 			testApp = new TestApp1;
 		}
@@ -149,15 +150,21 @@ public:
 		}
 	}
 
-	int runTest() {
+	int runTest(const string& testName) {
+		logger.print("등록된 Test를 시작");
+		cout << testName << "    ---    " << "Run...";
 		if (testApp == nullptr)
+		{
+			cout << endl;
 			throw exception(" - 존재하지 않는 TestScript입니다.");
+		}
 
 		return testApp->runTest();
 	}
 
 	void runTestList()
 	{
+		logger.print("'run_list.lst'의 테스트들을 불러 실행");
 		ifstream file(PATH_TESTLIST_FILE);
 		string testName = "";
 		if (file.is_open()) {
@@ -165,8 +172,7 @@ public:
 			{
 				while (getline(file, testName)) {
 					setTestApp(testName);
-					cout << testName << "    ---    " << "Run...";
-					switch (runTest())
+					switch (runTest(testName))
 					{
 					case SUCCESS:
 						cout << "PASS" << endl;
@@ -181,7 +187,7 @@ public:
 			}
 			catch (const exception& e)
 			{
-				cout << e.what() << endl;
+				logger.print(e.what());
 			}
 			file.close();
 		}
