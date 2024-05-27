@@ -128,12 +128,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="run_list.lst" />
     <None Include="SSD.exe" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SSDRunner.cpp" />
+    <ClCompile Include="TestScript.cpp" />
     <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
   <ItemGroup>

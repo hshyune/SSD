@@ -6,10 +6,17 @@
 #include <sstream>
 #include "SSDRunner.cpp"
 #include "Exception.cpp"
+#include "TestScript.cpp"
 using namespace std;
 
 class TestShell {
 public:
+	TestShell() {
+		testApp = nullptr;
+	}
+	~TestShell() {
+		delete testApp;
+	}
 	void write(int address, string data) {
 		ssd.write(address, data);
 	}
@@ -79,6 +86,65 @@ public:
 		cout << readData << endl;
 	}
 
+	void setTestApp(const string& testName) {
+		if (testName == "testapp1") {
+			testApp = new TestApp1;
+		}
+		else if (testName == "testapp2") {
+			testApp = new TestApp2;
+		}
+		else if (testName == "FullWriteReadCompare") {
+			testApp = new FullWriteReadCompare;
+		}
+		else if (testName == "FullRead10AndCompare") {
+			testApp = new FullRead10AndCompare;
+		}
+		else if (testName == "Write10AndCompare") {
+			testApp = new Write10AndCompare;
+		}
+		else if (testName == "Loop_WriteAndReadCompare") {
+			testApp = new Loop_WriteAndReadCompare;
+		}
+		else {
+			testApp = nullptr;
+		}
+	}
+
+	void runTest() {
+		if (testApp == nullptr)
+			throw exception(" - 존재하지 않는 TestScript입니다.");
+
+		testApp->runTest();
+	}
+
+	void runTestList()
+	{
+		ifstream file(PATH_TESTLIST_FILE);
+		string testName = "";
+		if (file.is_open()) {
+			while (getline(file, testName)) {
+				setTestApp(testName);
+				cout << testName << "    ---    " << "Run...";
+				switch (testApp->runTest())
+				{
+				case SUCCESS:
+					cout << "PASS" << endl;
+					break;
+				case FAIL:
+					cout << "FAIL" << endl;
+					break;
+				default:
+					break;
+				}
+			}
+			file.close();
+		}
+		else {
+			cout << "Unable to open " << PATH_TESTLIST_FILE << endl;
+			return;
+		}
+	}
+
 	void run() {
 		// run
 		while (this->isRunning) {
@@ -97,7 +163,6 @@ public:
 			}
 			// empty input
 			if (args.size() == 0) continue;
-
 			string cmd = args.at(0);
 			if (cmd == "read") {
 				// read [addr]
@@ -261,6 +326,9 @@ public:
 				string data = args.at(1);
 				this->fullwrite(data);
 			}
+			else if (cmd == "run_list.lst") {
+				this->runTestList();
+			}
 			else {
 
 			}
@@ -269,11 +337,11 @@ public:
 
 private:
 	SSDRunner ssd;
+	ITestApp* testApp;
 	bool isRunning = true;
 
 	const string INVALID_PARAMETER = "INVALID PARAMETER";
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
-
 };
