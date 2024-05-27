@@ -26,68 +26,60 @@ void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
 	if (commandBuffer.size() < 2) {
 		return;
 	}
-	for (auto earlierCmd = commandBuffer.begin(); earlierCmd != commandBuffer.end(); ) {
-		bool earlierCmdErased = false;
-		for (auto laterCmd = next(earlierCmd); laterCmd != commandBuffer.end(); ) {
-			// If a later 'write' command has the same address as an earlier one, remove the earlier one
+	for (auto earlierCmd = commandBuffer.begin(); earlierCmd != commandBuffer.end(); ++earlierCmd) {
+		for (auto laterCmd = next(earlierCmd); laterCmd != commandBuffer.end(); ++laterCmd) {
 			if (earlierCmd->type == 'W' && laterCmd->type == 'W' && earlierCmd->address == laterCmd->address) {
-				earlierCmd = commandBuffer.erase(earlierCmd);
-				earlierCmdErased = true;
-				break;
+				commandBuffer.erase(earlierCmd);
+				optimizeBuffer(commandBuffer);
+				return;
 			}
-			// If an 'erase' command includes the address of an earlier 'write' command, remove the 'write' command
 			else if (earlierCmd->type == 'W' && laterCmd->type == 'E' && laterCmd->address <= earlierCmd->address && earlierCmd->address < laterCmd->address + stoi(laterCmd->data)) {
-				earlierCmd = commandBuffer.erase(earlierCmd);
-				earlierCmdErased = true;
-				break;
+				commandBuffer.erase(earlierCmd);
+				optimizeBuffer(commandBuffer);
+				return;
 			}
-			// If a 'write' command falls within the range of an earlier 'erase' command, adjust the 'erase' command
 			else if (earlierCmd->type == 'E' && laterCmd->type == 'W' && earlierCmd->address <= laterCmd->address && laterCmd->address < earlierCmd->address + stoi(earlierCmd->data)) {
 				if (stoi(earlierCmd->data) == 1) {
-					earlierCmd = commandBuffer.erase(earlierCmd);
-					earlierCmdErased = true;
-					break;
+					commandBuffer.erase(earlierCmd);
+					optimizeBuffer(commandBuffer);
+					return;
 				}
 				else if (earlierCmd->address == laterCmd->address) {
 					earlierCmd->address++;
+					optimizeBuffer(commandBuffer);
+					return;
 				}
 				else if (earlierCmd->address + stoi(earlierCmd->data) - 1 == laterCmd->address) {
 					earlierCmd->data = to_string(stoi(earlierCmd->data) - 1);
+					optimizeBuffer(commandBuffer);
+					return;
 				}
-				++laterCmd;
 			}
-			// If two 'erase' commands have overlapping or contiguous ranges, merge them into one, unless there is a 'write' command in between
-			// even if the 'write' command is not in the range of the later 'erase' commands
-			else if (earlierCmd->type == 'E' && laterCmd->type == 'E' &&
-				(earlierCmd->address <= laterCmd->address && laterCmd->address <= earlierCmd->address + stoi(earlierCmd->data)) ||
-				(laterCmd->address <= earlierCmd->address && earlierCmd->address <= laterCmd->address + stoi(laterCmd->data))) {
+			else if (earlierCmd->type == 'E' && laterCmd->type == 'E') {
+				if ((earlierCmd->address <= laterCmd->address && laterCmd->address <= earlierCmd->address + stoi(earlierCmd->data)) ||
+					(laterCmd->address <= earlierCmd->address && earlierCmd->address <= laterCmd->address + stoi(laterCmd->data))) {
+					bool canMerge = true;
+					for (int curAddr = laterCmd->address; curAddr < laterCmd->address + stoi(laterCmd->data); curAddr++) {
+						if (any_of(commandBuffer.begin(), commandBuffer.end(), [curAddr](const Command& cmd) { return cmd.type == 'W' && cmd.address == curAddr; })) {
+							canMerge = false;
+							break;
+						}
+					}
 
-				bool canMerge = true;
-				for (int curAddr = laterCmd->address; curAddr < laterCmd->address + stoi(laterCmd->data); curAddr++) {
-					if (any_of(commandBuffer.begin(), commandBuffer.end(), [curAddr](const Command& cmd) { return cmd.type == 'W' && cmd.address == curAddr; })) {
-						canMerge = false;
-						break;
+					if (canMerge) {
+						earlierCmd->address = min(earlierCmd->address, laterCmd->address);
+						earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
+						commandBuffer.erase(laterCmd);
+						optimizeBuffer(commandBuffer);
+						return;
 					}
 				}
-
-				if (canMerge) {
-					earlierCmd->address = min(earlierCmd->address, laterCmd->address);
-					earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
-					laterCmd = commandBuffer.erase(laterCmd);
-				}
-				else {
-					++laterCmd;
-				}
 			}
-			else {
-				++laterCmd;
-			}
-		}
-		if (!earlierCmdErased) {
-			++earlierCmd;
 		}
 	}
 }
+
+
 
 void CommandBuffer::write(int address, const string& data) {
 	auto commandBuffer = LoadFromFile();
@@ -101,7 +93,7 @@ void CommandBuffer::write(int address, const string& data) {
 
 	optimizeBuffer(commandBuffer);
 
-	SaveToFile(commandBuffer);
+	saveToFile(commandBuffer);
 }
 
 void CommandBuffer::erase(int address, int size) {
@@ -116,7 +108,7 @@ void CommandBuffer::erase(int address, int size) {
 
 	optimizeBuffer(commandBuffer);
 
-	SaveToFile(commandBuffer);
+	saveToFile(commandBuffer);
 }
 
 void CommandBuffer::flush(void) {
@@ -135,7 +127,7 @@ void CommandBuffer::flush(void) {
 	}
 
 	commandBuffer.clear();
-	SaveToFile(commandBuffer);
+	saveToFile(commandBuffer);
 }
 
 size_t CommandBuffer::getBufferSize() {
@@ -180,7 +172,7 @@ list<Command> CommandBuffer::LoadFromFile()
 	return commandBuffer;
 }
 
-void CommandBuffer::SaveToFile(const list<Command>& commandBuffer)
+void CommandBuffer::saveToFile(const list<Command>& commandBuffer)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);

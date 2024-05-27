@@ -22,12 +22,14 @@ public:
     void erase(int address, int size) override;
     void flush(void) override;
     list<Command> LoadFromFile();
-    void SaveToFile(const list<Command>& commandBuffer);
-    void optimizeBuffer(list<Command>& commandBuffer);
+    
     size_t getBufferSize();
 
 private:
     string fileName;
     Nand* nand = nullptr;
+
+    void saveToFile(const list<Command>& commandBuffer);
+    void optimizeBuffer(list<Command>& commandBuffer);
 };
 
