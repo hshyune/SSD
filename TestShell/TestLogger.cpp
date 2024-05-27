@@ -56,10 +56,10 @@ public:
 		return std::string(": ") + logMessage;
 	}
 
-	void printConsoleAndFile(const std::string& loggerOutput) {
-		std::cout << loggerOutput << std::endl;
-		std::fstream fs(getLogPath(loggerFile), std::fstream::out | std::fstream::app);
-		fs << loggerOutput << std::endl;
+	void printConsoleAndFile(const std::string& logOutput) {
+		std::cout << logOutput << std::endl;
+		std::fstream fs(getLogPath(logFile), std::fstream::out | std::fstream::app);
+		fs << logOutput << std::endl;
 		fs.close();
 	}
 
@@ -68,22 +68,22 @@ public:
 			return;
 		manageLogFiles();
 
-		std::string loggerOutput = getCurrentTime();
-		loggerOutput += getCallerName(std::string(str) + "()");
-		loggerOutput += getLogMessage(logMessage);
-		printConsoleAndFile(loggerOutput);
+		std::string logOutput = getCurrentTime();
+		logOutput += getCallerName(std::string(str) + "()");
+		logOutput += getLogMessage(logMessage);
+		printConsoleAndFile(logOutput);
 	}
 
 	std::ifstream::pos_type filesize() {
-		std::ifstream in(getLogPath(loggerFile).c_str(), std::ifstream::ate | std::ifstream::binary);
+		std::ifstream in(getLogPath(logFile).c_str(), std::ifstream::ate | std::ifstream::binary);
 		return in.tellg();
 	}
 
 	void manageLogFiles() {
-		auto loggerFileSize = filesize();
-		if (loggerFileSize >= loggerMaxByte) {
+		auto logFileSize = filesize();
+		if (logFileSize >= logMaxByte) {
 			std::string backupFile = std::string("until_") + getLogCurrentTime() + ".log";
-			std::rename(getLogPath(loggerFile).c_str(), getLogPath(backupFile).c_str());
+			std::rename(getLogPath(logFile).c_str(), getLogPath(backupFile).c_str());
 		}
 	}
 
@@ -99,12 +99,12 @@ public:
 	}
 
 	std::string getLogPath(const std::string& logFileName) {
-		return loggerBase + "/" + logFileName;
+		return logBase + "/" + logFileName;
 	}
 
 private:
-	const int loggerMaxByte{ 1024 * 10 };
-	std::string loggerBase{ "../log" };
-	std::string loggerFile{ "latest.log" };
+	const int logMaxByte{ 1024 * 10 };
+	std::string logBase{ "../log" };
+	std::string logFile{ "latest.log" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
