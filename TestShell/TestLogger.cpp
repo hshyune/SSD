@@ -31,25 +31,14 @@ public:
 		this->logLevel = logLevel;
 	}
 
-	std::string getCurrentTime() {
+	std::string getCurrentTime(const std::string& timeFormat) {
 		time_t rawtime;
 		struct tm* timeinfo;
 		char buffer[80]{};
 
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		strftime(buffer, 80, "[%g.%m.%d %R]", timeinfo);
-		return std::string(buffer);
-	}
-
-	std::string getLogCurrentTime() {
-		time_t rawtime;
-		struct tm* timeinfo;
-		char buffer[80]{};
-
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-		strftime(buffer, 80, "%g%m%d_%Hh_%Mm_%Ss", timeinfo);
+		strftime(buffer, 80, timeFormat.c_str(), timeinfo);
 		return std::string(buffer);
 	}
 
@@ -88,7 +77,7 @@ public:
 			return;
 		manageLogFiles();
 
-		std::string logOutput = getCurrentTime();
+		std::string logOutput = getCurrentTime("[%g.%m.%d %R]");
 		logOutput += getCallerName(std::string(str) + "()");
 		logOutput += getLogMessage(logMessage);
 		printConsoleAndFile(logOutput);
@@ -107,7 +96,7 @@ public:
 	}
 
 	void makeNewUntilLog() {
-		latestBackupFile = std::string("until_") + getLogCurrentTime();
+		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
 		std::string baselogFile = getLogPath(logFile);
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
 
