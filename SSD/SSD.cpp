@@ -31,3 +31,7 @@ void SSD::erase(int address, int size) {
 
 	ioInterface->erase(address, size);
 }
+
+void SSD::flush(void) {
+	ioInterface->flush();
+}

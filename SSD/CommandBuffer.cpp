@@ -4,6 +4,7 @@
 #include <iostream>
 
 CommandBuffer::CommandBuffer(const string& fileName) : fileName(fileName) {
+	remove(fileName.c_str());
 	nand = new Nand();
 }
 
@@ -48,11 +49,14 @@ void CommandBuffer::erase(int address, int size) {
 	auto commandBuffer = LoadFromFile();
 
 	// delete write command in erase range
-	for (int curAddr = address; curAddr < address + size - 1; curAddr++) {
+	for (int curAddr = address; curAddr < address + size; curAddr++) {
 		list<Command>::iterator iter = commandBuffer.begin();
-		for (iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
+		for (iter = commandBuffer.begin(); iter != commandBuffer.end(); ) {
 			if (iter->type == 'W' && iter->address == address) {
 				iter = commandBuffer.erase(iter);
+			}
+			else {
+				iter++;
 			}
 		}
 	}
@@ -63,10 +67,29 @@ void CommandBuffer::erase(int address, int size) {
 	Command c;
 	c.type = 'E';
 	c.address = address;
-	c.data = size;
+	c.data = to_string(size);
 
 	commandBuffer.push_back(c);
 
+	SaveToFile(commandBuffer);
+}
+
+void CommandBuffer::flush(void) {
+	auto commandBuffer = LoadFromFile();
+
+	list<Command>::iterator iter = commandBuffer.begin();
+	for (auto iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
+		switch (iter->type) {
+		case 'W':
+			nand->write(iter->address, iter->data);
+			break;
+		case 'E':
+			nand->erase(iter->address, stoi(iter->data));
+			break;
+		}
+	}
+
+	commandBuffer.clear();
 	SaveToFile(commandBuffer);
 }
 
@@ -116,8 +139,14 @@ void CommandBuffer::SaveToFile(const list<Command>& commandBuffer)
 		return;
 	}
 
-	for (auto& command : commandBuffer) {
-		file << command.type << "," << command.address << "," << command.data << "\n";
+	if (commandBuffer.size() == 0) {
+		file.close();
+		remove(fileName.c_str());
+	}
+	else {
+		for (auto& command : commandBuffer) {
+			file << command.type << "," << command.address << "," << command.data << "\n";
+		}
 	}
 
 	file.close();

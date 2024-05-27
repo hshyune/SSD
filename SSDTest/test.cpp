@@ -10,6 +10,7 @@ public:
 	MOCK_METHOD(string, read, (int address), (override));
 	MOCK_METHOD(void, write, (int address, const string& data), (override));
 	MOCK_METHOD(void, erase, (int address, int size), (override));
+	MOCK_METHOD(void, flush, (), (override));
 };
 
 class SSDTest : public testing::Test {

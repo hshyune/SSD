@@ -4,7 +4,10 @@
 #include <iostream>
 #include <map>
 
-Nand::Nand(const string& fileName) : fileName(fileName) {}
+Nand::Nand(const string& fileName) 
+	: fileName(fileName) {
+	remove(fileName.c_str());
+}
 
 string Nand::read(int address) {
 	ifstream file(fileName, ios::binary);
@@ -36,6 +39,10 @@ void Nand::erase(int address, int size) {
 	}
 
 	SaveMapToFile(dataMap);
+}
+
+void Nand::flush(void) {
+	// nop
 }
 
 map<int, string> Nand::LoadMapFromFile()

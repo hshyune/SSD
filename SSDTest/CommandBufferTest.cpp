@@ -46,3 +46,37 @@ TEST_F(CommandBufferTest, LoadTest) {
     EXPECT_EQ(commands.front().address, 10);
     EXPECT_EQ(commands.front().data, "data");
 }
+
+TEST_F(CommandBufferTest, FlushTest_1) {
+    cb->write(10, "data");
+    cb->flush();
+    
+    remove(testFileName.c_str()); 
+    
+    string result = cb->read(10);
+    EXPECT_EQ(result, "data");
+}
+
+TEST_F(CommandBufferTest, FlushTest_2) {
+    cb->write(10, "data");
+    
+    remove(testFileName.c_str());
+    
+    string result = cb->read(10);
+    EXPECT_EQ(result, "0x00000000");
+}
+
+TEST_F(CommandBufferTest, FlushTest_3) {
+    cb->write(10, "data");
+    cb->write(11, "data");
+    cb->erase(10, 1);
+    cb->flush();
+
+    remove(testFileName.c_str());
+
+    string result1 = cb->read(10);
+    EXPECT_EQ(result1, "0x00000000");
+
+    string result2 = cb->read(11);
+    EXPECT_EQ(result2, "data");
+}
