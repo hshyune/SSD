@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
+#include "Exception.cpp"
 using namespace std;
 
 class TestShell {
@@ -20,7 +21,7 @@ public:
 	}
 
 	void exit() {
-		// Shell 이 종료된다
+		throw ExceptionExitProgram("프로그램이 종료되었습니다.");
 	}
 
 	int help() {
@@ -112,7 +113,7 @@ public:
 				this->help();
 			}
 			else if (cmd == "exit") {
-				isRunning = false;
+				this->exit();
 			}
 			else if (cmd == "fullread") {
 				this->fullread();
