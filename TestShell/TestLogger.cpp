@@ -57,7 +57,15 @@ public:
 	}
 
 	void printConsoleAndFile(const std::string& logOutput) {
+		printConsole(logOutput);
+		printFile(logOutput);
+	}
+
+	void printConsole(const std::string& logOutput) {
 		std::cout << logOutput << std::endl;
+	}
+
+	void printFile(const std::string& logOutput) {
 		std::fstream fs(getLogPath(logFile), std::fstream::out | std::fstream::app);
 		fs << logOutput << std::endl;
 		fs.close();
