@@ -199,11 +199,9 @@ public:
 				bool isValid = commandContoller.validate(args);
 				if (isValid) {
 					commandContoller.execute();
-				}
-				else {
 					this->isRunning = false;
-					continue;
 				}
+				continue;
 			}
 			else if (cmd == "help") {
 				HelpCommand* command = new HelpCommand();
@@ -242,18 +240,13 @@ public:
 				}
 			}
 			else {
-				InvalidCommand* command = new InvalidCommand(this->ssdRunner);
+				InvalidCommand* command = new InvalidCommand();
 				commandContoller.setCommand(command);
 
 				bool isValid = commandContoller.validate(args);
 				if (isValid) {
 					commandContoller.execute();
 				}
-				else {
-					continue;
-				}
-
-				cout << this->INVALID_COMMAND << endl;
 				continue;
 			}
 
