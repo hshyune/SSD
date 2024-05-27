@@ -12,10 +12,10 @@ string CommandBuffer::read(int address) {
 
 	auto commandBuffer = LoadFromFile();
 
-	int lastIndex = commandBuffer.size() - 1;
-	for (int index = lastIndex; index >= 0; index--) {
-		if (commandBuffer[index].type == 'W' && commandBuffer[index].address == address) {
-			return commandBuffer[index].data;
+	list<Command>::iterator iter = commandBuffer.begin();
+	for(iter= commandBuffer.begin();iter!=commandBuffer.end();iter++) {
+		if (iter->type == 'W' && iter->address == address) {
+			return iter->data;
 		}
 	}
 
@@ -25,16 +25,16 @@ string CommandBuffer::read(int address) {
 void CommandBuffer::write(int address, const string& data) {
 	auto commandBuffer = LoadFromFile();
 
-	for (auto command : commandBuffer) {
-		if (command.type == 'W' && command.address == address) {
-			// erase entry
+	list<Command>::iterator iter = commandBuffer.begin();
+	for (iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
+		if (iter->type == 'W' && iter->address == address) {
+			iter = commandBuffer.erase(iter);
 		}
 	}
 
 	Command c;
 	c.type = 'W';
 	c.address = address;
-	c.size = 1;
 	c.data = data;
 	
 	commandBuffer.push_back(c);
@@ -45,16 +45,34 @@ void CommandBuffer::write(int address, const string& data) {
 void CommandBuffer::erase(int address, int size) {
 	auto commandBuffer = LoadFromFile();
 
-	// delete write, erase command in current address range
+	// delete write command in erase range
+	for (int curAddr = address; curAddr < address + size - 1; curAddr++) {
+		list<Command>::iterator iter = commandBuffer.begin();
+		for (iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
+			if (iter->type == 'W' && iter->address == address) {
+				iter = commandBuffer.erase(iter);
+			}
+		}
+	}
+	
+	// todo: merge erase
+
+	// add erase command to commandBuffer
+	Command c;
+	c.type = 'E';
+	c.address = address;
+	c.data = size;
+
+	commandBuffer.push_back(c);
 
 	SaveToFile(commandBuffer);
 }
 
-vector<Command> CommandBuffer::LoadFromFile()
+list<Command> CommandBuffer::LoadFromFile()
 {
 	ifstream file(fileName, ios::binary);
 
-	vector<Command> commandBuffer;
+	list<Command> commandBuffer;
 
 	if (!file) {
 		return commandBuffer;
@@ -67,15 +85,14 @@ vector<Command> CommandBuffer::LoadFromFile()
 
 		char type;
 		int address;
-		int size;
 		string data;
 
 		// need to parse file
 
+
 		Command c;
 		c.type = type;
 		c.address = address;
-		c.size = size;
 		c.data = data;
 		commandBuffer.push_back(c);
 	}
@@ -85,7 +102,7 @@ vector<Command> CommandBuffer::LoadFromFile()
 	return commandBuffer;
 }
 
-void CommandBuffer::SaveToFile(vector<Command> commandBuffer)
+void CommandBuffer::SaveToFile(list<Command> commandBuffer)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);
