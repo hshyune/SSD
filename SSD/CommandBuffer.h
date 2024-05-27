@@ -1,10 +1,16 @@
 ﻿#pragma once
 #include "IIoInterface.h"
-#include <map>
+#include <list>
 #include <string>
 #include "Nand.h"
 
 using namespace std;
+
+struct Command {
+    char type;
+    int address;
+    string data;
+};
 
 class CommandBuffer : public IIoInterface {
 public:
@@ -15,8 +21,8 @@ public:
     string read(int address) override;
     void write(int address, const string& data) override;
     void erase(int address, int size) override;
-    map<int, string> LoadMapFromFile();
-    void SaveMapToFile(map<int, string> data);
+    list<Command> LoadFromFile();
+    void SaveToFile(const list<Command>& commandBuffer);
 
 private:
     string fileName;
