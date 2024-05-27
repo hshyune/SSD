@@ -96,9 +96,56 @@ public:
 			while (getline(iss, tmp, ' ')) {
 				args.push_back(tmp);
 			}
-			
-			// execution
+			// empty input
+			if (args.size() == 0) continue;
+
 			string cmd = args.at(0);
+			if (cmd == "read") {
+				// read [addr]
+				// format
+				try {
+					if (args.size() != 2) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
+				// addr validation
+				try {
+					// string to integer
+					int addr = stoi(args.at(1));
+					// range
+					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
+			}
+			else if (cmd == "write") {
+				// write [addr] [data]
+
+			}
+			if (cmd == "exit") {
+				// exit
+			}
+			if (cmd == "help") {
+				// help
+			}
+			if (cmd == "fullwrite") {
+				// fullwrite [data]
+
+			}
+			if (cmd == "fullread") {
+				// fullread
+			}
+			else {
+
+			}
+			// execution
+			
 			if (cmd == "read") {
 				int addr = stoi(args.at(1));
 				string result = this->read(addr);
@@ -130,4 +177,9 @@ public:
 
 private:
 	SSDRunner ssd;
+
+	const string INVALID_PARAMETER = "INVALID PARAMETER";
+	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
+	const string INVALID_DATA = "INVALID_DATA";
+	const string INVALID_COMMAND = "INVALID COMMAND";
 };
