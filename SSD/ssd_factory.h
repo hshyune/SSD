@@ -7,7 +7,7 @@
 class SSDFactory {
 public:
 	static ISSDInterface* CreateNandSSD() {
-		return new SSD(new CommandBuffer());
+		return new SSD(new CommandBuffer(new Nand()));
 
 	}
 
