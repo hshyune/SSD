@@ -91,8 +91,24 @@ public:
 	void manageLogFiles() {
 		auto logFileSize = filesize();
 		if (logFileSize >= logMaxSize) {
-			std::string backupFile = std::string("until_") + getLogCurrentTime() + ".log";
-			std::rename(getLogPath(logFile).c_str(), getLogPath(backupFile).c_str());
+			makeNewUntilLog();
+		}
+	}
+
+	void makeNewUntilLog() {
+		latestBackupFile = std::string("until_") + getLogCurrentTime();
+		std::string baselogFile = getLogPath(logFile);
+		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
+
+		try {
+			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
+			if (result != 0) {
+				throw std::runtime_error(std::string("[Rename Error] : ") + baselogFile + " -> " + backuplogFile);
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			exit(1);
 		}
 	}
 
@@ -115,5 +131,6 @@ private:
 	const int logMaxSize{ 1024 * 10 };
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
+	std::string latestBackupFile;
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
