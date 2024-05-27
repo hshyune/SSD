@@ -64,6 +64,8 @@ public:
 	}
 
 	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
+		if (logLevel == LOG_LEVEL::NO)
+			return;
 		manageLogFiles();
 
 		std::string loggerOutput = getCurrentTime();
