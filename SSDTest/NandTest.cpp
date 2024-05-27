@@ -41,6 +41,22 @@ TEST_F(NandTest, OverwriteAndRead) {
     EXPECT_EQ(nand.read(3), "");
 }
 
+TEST_F(NandTest, EraseData) {
+    nand.write(1, "hello");
+    nand.write(2, "world");
+    nand.write(3, "hello2");
+    nand.write(4, "samsung");
+    nand.write(5, "elec");
+
+    nand.erase(2, 3);
+
+    EXPECT_EQ(nand.read(1), "hello");
+    EXPECT_EQ(nand.read(2), "");
+    EXPECT_EQ(nand.read(3), "");
+    EXPECT_EQ(nand.read(4), "");
+    EXPECT_EQ(nand.read(5), "elec");
+}
+
 TEST_F(NandTest, LoadMapFromFile) {
     std::ofstream file(testFileName);
     file << "1,hello\n2,world\n";

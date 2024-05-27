@@ -14,6 +14,7 @@ public:
 	}
     string read(int address) override;
     void write(int address, const string& data) override;
+    void erase(int address, int size) override;
     map<int, string> LoadMapFromFile();
     void SaveMapToFile(map<int, string> data);
 
