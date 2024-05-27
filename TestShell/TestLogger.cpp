@@ -42,6 +42,17 @@ public:
 		return std::string(buffer);
 	}
 
+	std::string getLogCurrentTime() {
+		time_t rawtime;
+		struct tm* timeinfo;
+		char buffer[80]{};
+
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(buffer, 80, "%g%m%d_%Hh_%Mm_%Ss", timeinfo);
+		return std::string(buffer);
+	}
+
 	std::string getCallerName(const std::string& callerName) {
 		const int fixedFunctionLength = 30;
 		char outBuffer[fixedFunctionLength + 1]{};
@@ -110,17 +121,6 @@ public:
 			std::cerr << ex.what() << std::endl;
 			exit(1);
 		}
-	}
-
-	std::string getLogCurrentTime() {
-		time_t rawtime;
-		struct tm* timeinfo;
-		char buffer[80]{};
-
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-		strftime(buffer, 80, "%g%m%d_%Hh_%Mm_%Ss", timeinfo);
-		return std::string(buffer);
 	}
 
 	std::string getLogPath(const std::string& logFileName) {
