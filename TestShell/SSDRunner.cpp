@@ -1,4 +1,5 @@
-﻿#include <stdio.h>
+﻿#pragma once
+#include <stdio.h>
 #include <iostream>
 #include <cstdlib> 
 #include <iostream>
