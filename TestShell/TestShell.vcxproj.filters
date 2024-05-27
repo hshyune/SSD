@@ -16,10 +16,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="SSD.exe">
+    <None Include="run_list.lst">
       <Filter>리소스 파일</Filter>
     </None>
-    <None Include="run_list.lst">
+    <None Include="SSD.exe">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
