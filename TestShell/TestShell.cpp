@@ -110,11 +110,11 @@ public:
 		}
 	}
 
-	void runTest() {
+	int runTest() {
 		if (testApp == nullptr)
 			throw exception(" - 존재하지 않는 TestScript입니다.");
 
-		testApp->runTest();
+		return testApp->runTest();
 	}
 
 	void runTestList()
@@ -122,20 +122,27 @@ public:
 		ifstream file(PATH_TESTLIST_FILE);
 		string testName = "";
 		if (file.is_open()) {
-			while (getline(file, testName)) {
-				setTestApp(testName);
-				cout << testName << "    ---    " << "Run...";
-				switch (testApp->runTest())
-				{
-				case SUCCESS:
-					cout << "PASS" << endl;
-					break;
-				case FAIL:
-					cout << "FAIL" << endl;
-					break;
-				default:
-					break;
+			try
+			{
+				while (getline(file, testName)) {
+					setTestApp(testName);
+					cout << testName << "    ---    " << "Run...";
+					switch (runTest())
+					{
+					case SUCCESS:
+						cout << "PASS" << endl;
+						break;
+					case FAIL:
+						cout << "FAIL" << endl;
+						break;
+					default:
+						break;
+					}
 				}
+			}
+			catch (const exception& e)
+			{
+				cout << e.what() << endl;
 			}
 			file.close();
 		}
@@ -218,7 +225,7 @@ public:
 					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
 					for (int i = 2; i < 10; i++) {
 						char ch = data[i];
-						if (!(('0' <= ch && ch <= '9') 
+						if (!(('0' <= ch && ch <= '9')
 							|| ('A' <= ch && ch <= 'F'))) {
 							throw runtime_error(this->INVALID_DATA);
 						}
@@ -297,6 +304,8 @@ public:
 					cout << e.what() << endl;
 					continue;
 				}
+			}
+			else if (cmd == "run_list.lst") {
 			}
 			else {
 				cout << this->INVALID_COMMAND << endl;
