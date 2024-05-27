@@ -126,7 +126,42 @@ public:
 			}
 			else if (cmd == "write") {
 				// write [addr] [data]
-
+				// format
+				try {
+					if (args.size() != 3) {
+						throw runtime_error(this->INVALID_PARAMETER);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
+				// addr validation
+				try {
+					// string to integer
+					int addr = stoi(args.at(1));
+					// range
+					if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
+				// data validation -> 0x00000000~0xFFFFFFFF
+				try {
+					string data = args.at(2);
+					if (data.length() != 10) throw runtime_error(this->INVALID_DATA);
+					if (data[0] != '0' || data[1] != 'x') throw runtime_error(this->INVALID_DATA);
+					for (int i = 2; i < 10; i++) {
+						char ch = data[i];
+						if (ch < '0' || '9' < ch) throw runtime_error(this->INVALID_DATA);
+						else if (ch < 'A' || 'F' < ch) throw runtime_error(this->INVALID_DATA);
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << endl;
+					continue;
+				}
 			}
 			if (cmd == "exit") {
 				// exit
@@ -136,7 +171,6 @@ public:
 			}
 			if (cmd == "fullwrite") {
 				// fullwrite [data]
-
 			}
 			if (cmd == "fullread") {
 				// fullread
@@ -182,4 +216,5 @@ private:
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
+
 };
