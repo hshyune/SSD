@@ -1,11 +1,12 @@
 ﻿#pragma once
-#include <string>
 #include <iostream>
-#include <fstream>
-#include <ctime>
-#include <algorithm>
-#include <cstring>
 #include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
+#include <fstream>
+#include <string>
+#include <algorithm>
 
 class Logger {
 public:
@@ -88,4 +89,4 @@ private:
 	const int loggerMaxByte{ 1024 * 10 };
 	std::string loggerBase{ "../log" };
 	std::string loggerFile{ "latest.log" };
-}; 
+};
