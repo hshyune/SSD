@@ -122,6 +122,10 @@ public:
 				string data = args.at(1);
 				this->fullwrite(data);
 			}
+			else if (cmd == "run_list.lst") {
+				string data = args.at(1);
+				this->fullwrite(data);
+			}
 			else {
 
 			}
