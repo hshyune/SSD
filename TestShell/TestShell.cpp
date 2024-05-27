@@ -87,6 +87,7 @@ public:
 			cout << "input : ";
 			getline(cin, input);
 
+			// validation
 			// split string
 			istringstream iss(input);
 			string tmp;
@@ -95,12 +96,12 @@ public:
 				args.push_back(tmp);
 			}
 			
-			// validation
-
+			// execution
 			string cmd = args.at(0);
 			if (cmd == "read") {
 				int addr = stoi(args.at(1));
-				this->read(addr);
+				string result = this->read(addr);
+				cout << result << endl;
 			}
 			else if (cmd == "write") {
 				int addr = stoi(args.at(1));

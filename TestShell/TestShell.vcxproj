@@ -133,7 +133,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SSDRunner.cpp" />
-
     <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
   <ItemGroup>
