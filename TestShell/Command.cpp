@@ -239,7 +239,7 @@ public:
 	}
 
 	bool validate(vector<string> args) override {
-		// fullwrite
+		// fullwrite [data]
 		try {
 			// format
 			if (args.size() != 1) throw runtime_error(this->INVALID_PARAMETER);
@@ -252,19 +252,18 @@ public:
 	}
 private:
 	SSDRunner* ssd;
-	int addr;
 	string data;
 };
 
-class NoCommand : public Command {
+class InvalidCommand : public Command {
 public:
-	NoCommand() {
+	InvalidCommand() {
 
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-
+		cout << this->INVALID_COMMAND << endl;
 	}
 
 	bool validate(vector<string> args) override {

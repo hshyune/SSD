@@ -166,6 +166,7 @@ public:
 			// empty input
 			if (args.size() == 0) continue;
 
+			// validation & execution
 			string cmd = args.at(0);
 			if (cmd == "read") {
 				ReadCommand* command = new ReadCommand(this->ssdRunner);
@@ -240,38 +241,24 @@ public:
 					continue;
 				}
 			}
-			else if (cmd == "run_list.lst") {
-			}
 			else {
+				InvalidCommand* command = new InvalidCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
+
 				cout << this->INVALID_COMMAND << endl;
 				continue;
 			}
 
-			// execution
-			if (cmd == "read") {
-				int addr = stoi(args.at(1));
-				string result = this->read(addr);
-				cout << result << endl;
-			}
-			else if (cmd == "write") {
-				int addr = stoi(args.at(1));
-				string data = args.at(2);
-				this->write(addr, data);
-			}
-			else if (cmd == "help") {
-				this->help();
-			}
-			else if (cmd == "exit") {
-				this->exit();
-			}
-			else if (cmd == "fullread") {
-				this->fullread();
-			}
-			else if (cmd == "fullwrite") {
-				string data = args.at(1);
-				this->fullwrite(data);
-			}
-			else if (cmd == "run_list.lst") {
+			// execution - testScript
+			if (cmd == "run_list.lst") {
 				this->runTestList();
 			}
 			else {
