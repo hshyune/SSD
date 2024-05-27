@@ -8,19 +8,28 @@
 #include <string>
 #include <algorithm>
 
-class LoggerSingleton {
-	public:
-		static LoggerSingleton& getInstance() {
-			static LoggerSingleton instance{};
-			return instance;
-		}
-	private:
-		LoggerSingleton() {
-		}
-		LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
-		LoggerSingleton(const LoggerSingleton& other) = delete;
-public:
+enum class LOG_LEVEL {
+	DEBUG,
+	INFO,
+	NO,
+};
 
+class LoggerSingleton {
+public:
+	static LoggerSingleton& getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO) {
+		static LoggerSingleton instance{};
+		instance.setLoglevel(logLevel);
+		return instance;
+	}
+private:
+	LoggerSingleton() {
+	}
+	LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
+	LoggerSingleton(const LoggerSingleton& other) = delete;
+public:
+	void setLoglevel(LOG_LEVEL logLevel) {
+		this->logLevel = logLevel;
+	}
 	std::string getCurrentTime() {
 		time_t rawtime;
 		struct tm* timeinfo;
@@ -95,4 +104,5 @@ private:
 	const int loggerMaxByte{ 1024 * 10 };
 	std::string loggerBase{ "../log" };
 	std::string loggerFile{ "latest.log" };
+	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
