@@ -36,3 +36,10 @@ public:
 		"파라미터 Format이 정상적이지 않습니다.";
 	}
 };
+
+class ExceptionExitProgram : public exception {
+public:
+	explicit ExceptionExitProgram(char const* _msg) :exception(_msg) {
+
+	}
+};
