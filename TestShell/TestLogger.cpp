@@ -6,6 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <algorithm>
 
 enum class LOG_LEVEL {
@@ -23,12 +24,31 @@ public:
 	}
 private:
 	LoggerSingleton() {
+		runCleanLog({ "log", "zip" });
 	}
 	LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
 	LoggerSingleton(const LoggerSingleton& other) = delete;
 public:
 	void setLoglevel(LOG_LEVEL logLevel) {
 		this->logLevel = logLevel;
+	}
+
+	void runCleanLog(const std::vector<std::string>& cleanExtensionLists) {
+		try {
+			std::string cleanExt;
+			for (const std::string& cleanExtension : cleanExtensionLists) {
+				cleanExt += logBase + "/*." + cleanExtension + " ";
+			}
+			std::string cleanCommand = git_rm + " -f " + cleanExt;
+			int result = std::system(cleanCommand.c_str());
+			if (result != 0) {
+				throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			exit(1);
+		}
 	}
 
 	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
@@ -40,6 +60,7 @@ public:
 		logOutput += getCallerName(std::string(str) + "()");
 		logOutput += getLogMessage(logMessage);
 		printConsoleAndFile(logOutput);
+		LogIterationDebugger();
 	}
 
 	void manageLogFiles() {
@@ -136,11 +157,23 @@ public:
 		fs.close();
 	}
 
+	void LogIterationDebugger(const char* str = __builtin_FUNCTION()) {
+		if (logLevel == LOG_LEVEL::DEBUG) {
+			static int count = 0;
+			std::cout << "========================== [" << str << "] " << count++ << " Iteration \n";
+			std::string findLogFile = git_ls + " " + logBase;
+			system(findLogFile.c_str());
+			std::cout << "========================== \n";
+		}
+	}
+
 private:
 	bool untilFileExist{ false };
 	const int logMaxSize{ 1024 * 10 };
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
+	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
+	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
