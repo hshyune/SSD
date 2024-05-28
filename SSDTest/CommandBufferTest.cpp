@@ -1,5 +1,6 @@
 ﻿#include "gtest/gtest.h"
 #include "../SSD/CommandBuffer.cpp"
+#include "../SSD/Nand.h"
 
 class CommandBufferTest : public ::testing::Test {
 protected:
@@ -7,7 +8,7 @@ protected:
     CommandBuffer* cb;
 
     std::string testNandFileName = "test_nand.txt";
-    Nand* nand;
+    IIoInterface* nand;
 
     void SetUp() override {
         nand = new Nand(testNandFileName);
@@ -198,9 +199,9 @@ TEST_F(CommandBufferTest, OptimizeBufferTest_Scenario5) {
     cb->erase(12, 3);
     list<Command> buffer = cb->LoadFromFile();
     EXPECT_EQ(buffer.size(), 2);
-    Command firstCmd = *buffer.begin();
-    EXPECT_EQ(firstCmd.type, 'E');
-    EXPECT_EQ(firstCmd.address, 11);
-    EXPECT_EQ(firstCmd.data, "4");
+    Command secondCmd = *next(buffer.begin());
+    EXPECT_EQ(secondCmd.type, 'E');
+    EXPECT_EQ(secondCmd.address, 11);
+    EXPECT_EQ(secondCmd.data, "4");
     EXPECT_EQ(cb->read(10), "data1");
 }

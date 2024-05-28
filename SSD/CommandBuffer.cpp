@@ -4,8 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
-CommandBuffer::CommandBuffer(Nand* nand, const string& fileName) : fileName(fileName) {
-	this->nand = nand;
+CommandBuffer::CommandBuffer(IIoInterface* storage, const string& fileName) : fileName(fileName) {
+	this->storage = storage;
 }
 
 string CommandBuffer::read(int address) {
@@ -19,53 +19,94 @@ string CommandBuffer::read(int address) {
 		}
 	}
 
-	return nand->read(address);
+	return storage->read(address);
 }
 
-void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
-	if (commandBuffer.size() < 2) {
-		return;
+bool isInRange(int target, int start, int end) {
+	return (start <= target && target < end) ? true : false;
+}
+
+void CommandBuffer::ignoreWriteAfterWrite(list<Command>& commandBuffer) {
+	auto lastCmd = &commandBuffer.back();
+	for (auto iter = commandBuffer.begin(); iter != std::prev(commandBuffer.end()); ) {
+		if (iter->type == 'W' && iter->address == lastCmd->address) {
+			iter = commandBuffer.erase(iter);
+		}
+		else {
+			iter++;
+		}
 	}
-	for (auto earlierCmd = commandBuffer.begin(); earlierCmd != commandBuffer.end(); ++earlierCmd) {
-		for (auto laterCmd = next(earlierCmd); laterCmd != commandBuffer.end(); ++laterCmd) {
-			if (earlierCmd->type == 'W' && laterCmd->type == 'W' && earlierCmd->address == laterCmd->address) {
-				commandBuffer.erase(earlierCmd);
-				optimizeBuffer(commandBuffer);
-				return;
-			}
-			else if (earlierCmd->type == 'W' && laterCmd->type == 'E' && laterCmd->address <= earlierCmd->address && earlierCmd->address < laterCmd->address + stoi(laterCmd->data)) {
-				commandBuffer.erase(earlierCmd);
-				optimizeBuffer(commandBuffer);
-				return;
-			}
-			else if (earlierCmd->type == 'E' && laterCmd->type == 'W' && earlierCmd->address <= laterCmd->address && laterCmd->address < earlierCmd->address + stoi(earlierCmd->data)) {
-				if (stoi(earlierCmd->data) == 1) {
-					commandBuffer.erase(earlierCmd);
-					optimizeBuffer(commandBuffer);
-					return;
+}
+
+void CommandBuffer::ignoreWriteAfterErase(list<Command>& commandBuffer) {
+	auto lastCmd = &commandBuffer.back();
+	for (auto iter = commandBuffer.begin(); iter != std::prev(commandBuffer.end());) {
+		if (iter->type == 'W' && isInRange(iter->address, lastCmd->address, lastCmd->address + stoi(lastCmd->data))) {
+			iter = commandBuffer.erase(iter);
+		}
+		else {
+			iter++;
+		}
+	}
+}
+
+void CommandBuffer::mergeErase(list<Command>& commandBuffer) {
+	auto lastCmd = &commandBuffer.back();
+	for (auto iter = commandBuffer.begin(); iter != std::prev(commandBuffer.end()); ) {
+		if (iter->type == 'E' && ((iter->address <= lastCmd->address && lastCmd->address <= iter->address + stoi(iter->data)) ||
+			(lastCmd->address <= iter->address && iter->address <= lastCmd->address + stoi(lastCmd->data)))) {
+			lastCmd->data = to_string(max(iter->address + stoi(iter->data), lastCmd->address + stoi(lastCmd->data)) - iter->address);
+			lastCmd->address = min(iter->address, lastCmd->address);
+			iter = commandBuffer.erase(iter);
+		}
+		else {
+			iter++;
+		}
+	}
+}
+
+void CommandBuffer::narrowRangeOfErase(list<Command>&commandBuffer) {
+	for (auto iterWrite = commandBuffer.begin(); iterWrite != commandBuffer.end(); ) {
+		if (iterWrite->type == 'W') {
+			for (auto iterErase = commandBuffer.begin(); iterErase != iterWrite; ) {
+				if (iterErase->type == 'E' && isInRange(iterWrite->address, iterErase->address, iterErase->address + stoi(iterErase->data))) {
+					if (stoi(iterErase->data) == 1) {
+						iterErase = commandBuffer.erase(iterErase);
+						narrowRangeOfErase(commandBuffer);
+					}
+					else if (iterErase->address == iterWrite->address) {
+						iterErase->address++;
+						iterErase++;
+						narrowRangeOfErase(commandBuffer);
+					}
+					else if (iterErase->address + stoi(iterErase->data) - 1 == iterWrite->address) {
+						iterErase->data = to_string(stoi(iterErase->data) - 1);
+						iterErase++;
+						narrowRangeOfErase(commandBuffer);
+					}
+					else {
+						iterErase++;
+					}
 				}
-				else if (earlierCmd->address == laterCmd->address) {
-					earlierCmd->address++;
-					optimizeBuffer(commandBuffer);
-					return;
-				}
-				else if (earlierCmd->address + stoi(earlierCmd->data) - 1 == laterCmd->address) {
-					earlierCmd->data = to_string(stoi(earlierCmd->data) - 1);
-					optimizeBuffer(commandBuffer);
-					return;
-				}
-			}
-			else if (earlierCmd->type == 'E' && laterCmd->type == 'E') {
-				if ((earlierCmd->address <= laterCmd->address && laterCmd->address <= earlierCmd->address + stoi(earlierCmd->data)) ||
-					(laterCmd->address <= earlierCmd->address && earlierCmd->address <= laterCmd->address + stoi(laterCmd->data))) {
-					earlierCmd->address = min(earlierCmd->address, laterCmd->address);
-					earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
-					commandBuffer.erase(laterCmd);
-					optimizeBuffer(commandBuffer);
-					return;
+				else {
+					iterErase++;
 				}
 			}
 		}
+		iterWrite++;
+	}
+}
+
+
+void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
+	auto lastCmd = &commandBuffer.back();
+	if (lastCmd->type == 'W') {
+		ignoreWriteAfterWrite(commandBuffer);
+		narrowRangeOfErase(commandBuffer);
+	}
+	else {
+		ignoreWriteAfterErase(commandBuffer);
+		mergeErase(commandBuffer);
 	}
 }
 
@@ -83,7 +124,6 @@ void CommandBuffer::write(int address, const string& data) {
 	c.data = data;
 
 	commandBuffer.push_back(c);
-
 	optimizeBuffer(commandBuffer);
 
 	saveToFile(commandBuffer);
@@ -103,7 +143,6 @@ void CommandBuffer::erase(int address, int size) {
 	c.data = to_string(size);
 
 	commandBuffer.push_back(c);
-
 	optimizeBuffer(commandBuffer);
 
 	saveToFile(commandBuffer);
@@ -116,10 +155,10 @@ void CommandBuffer::flush(void) {
 	for (auto iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
 		switch (iter->type) {
 		case 'W':
-			nand->write(iter->address, iter->data);
+			storage->write(iter->address, iter->data);
 			break;
 		case 'E':
-			nand->erase(iter->address, stoi(iter->data));
+			storage->erase(iter->address, stoi(iter->data));
 			break;
 		}
 	}

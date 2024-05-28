@@ -2,7 +2,6 @@
 #include "IIoInterface.h"
 #include <list>
 #include <string>
-#include "Nand.h"
 
 using namespace std;
 
@@ -14,7 +13,7 @@ struct Command {
 
 class CommandBuffer : public IIoInterface {
 public:
-    CommandBuffer(Nand* nand, const string& fileName = "buffer.txt");
+    CommandBuffer(IIoInterface* storage, const string& fileName = "buffer.txt");
     virtual ~CommandBuffer() {
 	}
     string read(int address) override;
@@ -27,9 +26,13 @@ public:
 
 private:
     string fileName;
-    Nand* nand = nullptr;
+    IIoInterface* storage = nullptr;
 
     void saveToFile(const list<Command>& commandBuffer);
+    void ignoreWriteAfterWrite(list<Command>& commandBuffer);
+    void ignoreWriteAfterErase(list<Command>& commandBuffer);
     void optimizeBuffer(list<Command>& commandBuffer);
+    void mergeErase(list<Command>& commandBuffer);
+    void narrowRangeOfErase(list<Command>& commandBuffer);
 };
 
