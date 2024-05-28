@@ -65,12 +65,12 @@ public:
 	void listLogOutputDirectory();
 
 private:
-	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
+	const std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
 };
 
 /////////////////////////////////////////////////////////////////////////////////
 
-class LoggerSingleton : public LogEnv {
+class LoggerSingleton : public LogUtils {
 public:
 	static LoggerSingleton& getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO, bool cleanLog = false);
 
@@ -81,8 +81,6 @@ private:
 
 public:
 	void print(std::string logMessage, const char* callerName = __builtin_FUNCTION());
-	std::string getLogPath(const std::string& logFileName);
-	std::string getCurrentTime(const std::string& timeFormat);
 	std::string getCallerName(const std::string& callerName);
 	std::string getLogMessage(const std::string& logMessage);
 	void printConsoleAndFile(const std::string& logOutput);

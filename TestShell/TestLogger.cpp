@@ -158,19 +158,6 @@ void LoggerSingleton::print(std::string logMessage, const char* callerName) {
 	debugger.debugListLogFile();
 }
 
-std::string LoggerSingleton::getLogPath(const std::string& logFileName) {
-	return getLogBase() + "/" + logFileName;
-}
-
-std::string LoggerSingleton::getCurrentTime(const std::string& timeFormat) {
-	time_t rawtime;
-	time(&rawtime);
-	struct tm* timeinfo = localtime(&rawtime);
-	char buffer[80]{};
-	strftime(buffer, 80, timeFormat.c_str(), timeinfo);
-	return std::string(buffer);
-}
-
 std::string LoggerSingleton::getCallerName(const std::string& callerName) {
 	const int fixedFunctionLength = 30;
 	char outBuffer[fixedFunctionLength + 1]{};
