@@ -24,10 +24,12 @@ public:
 		this->exec(cmd);
 	}
 
-	void fullread() {
+	string fullread() {
+		string result = "";
 		for (int addr = 0; addr < MAX_LBA_SIZE; addr++) {
-			this->read(addr);
+			result += to_string(addr) + "," + this->read(addr);
 		}
+		return result;
 	}
 
 	void fullwrite(string data) {

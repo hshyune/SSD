@@ -32,8 +32,8 @@ public:
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-		string result = this->ssd->read(this->addr);
-		cout << result << endl;
+		cout << this->ssd->read(this->addr) << endl;
+
 	}
 
 	bool validate(vector<string> args) override {
@@ -125,7 +125,6 @@ public:
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-
 	}
 
 	bool validate(vector<string> args) override {
@@ -192,7 +191,7 @@ public:
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-		// To-do
+		this->ssd->fullwrite(this->data);
 	}
 
 	bool validate(vector<string> args) override {
@@ -235,7 +234,7 @@ public:
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-		// To-do
+		cout << this->ssd->fullread() << endl;
 	}
 
 	bool validate(vector<string> args) override {
