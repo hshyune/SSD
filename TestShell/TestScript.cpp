@@ -11,11 +11,13 @@ using namespace std;
 
 const string PATH_TESTLIST_FILE = "run_list.lst";
 const string PATH_NAND = "nand.txt";
-const int PASS = 0;
-const int FAIL = 1;
-const int ERROR_TEST_NOT_EXISTED = 2;
-const int ERROR_CANNOT_OPEN_FILE = 3;
-const int ERROR_CANNOT_READ_NAND = 4;
+enum TEST_RESULT {
+	PASS = 0,
+	FAIL,
+	ERROR_TEST_NOT_EXISTED,
+	ERROR_CANNOT_OPEN_FILE,
+	ERROR_CANNOT_READ_NAND,
+};
 
 class ITestApp {
 public:
@@ -28,7 +30,7 @@ public:
 	{
 		// 먼저fullwrite를 수행한다.
 		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
-		return PASS;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -39,7 +41,7 @@ public:
 		// 0~5 번 LBA 에 0xAAAABBBB 값으로 총 30번 Write를 수행한다.
 		// 0~5 번 LBA 에 0x12345678 값으로 1 회 Over Write를 수행한다.
 		// 0~5 번 LBA Read 했을 때 정상적으로 값이 읽히는지 확인한다.
-		return PASS;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -49,7 +51,7 @@ public:
 	{
 		// fullwrite를 수행
 		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
-		return PASS;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -58,7 +60,7 @@ public:
 	int runTest() override
 	{
 		// fullread를 10회
-		return PASS;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -67,7 +69,7 @@ public:
 	int runTest() override
 	{
 		// full write 10회
-		return PASS;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -76,7 +78,7 @@ public:
 	int runTest() override
 	{
 		// write하고 read를 각 1회씩 반복테스트
-		return FAIL;
+		return TEST_RESULT::FAIL;
 	}
 };
 
@@ -111,7 +113,7 @@ public:
 		LoggerSingleton::getInstance().print("Run " + testName);
 		cout << testName << "    ---    " << "Run...";
 		if (testApp == nullptr)
-			return ERROR_TEST_NOT_EXISTED;
+			return TEST_RESULT::ERROR_TEST_NOT_EXISTED;
 
 		return testApp->runTest();
 	}
@@ -126,13 +128,13 @@ public:
 				setTestApp(testName);
 				switch (runTest(testName))
 				{
-				case PASS:
-					cout << "PASS" << endl;
+				case TEST_RESULT::PASS:
+					cout << "TEST_RESULT::PASS" << endl;
 					break;
-				case FAIL:
-					cout << "FAIL" << endl;
+				case TEST_RESULT::FAIL:
+					cout << "TEST_RESULT::FAIL" << endl;
 					break;
-				case ERROR_TEST_NOT_EXISTED:
+				case TEST_RESULT::ERROR_TEST_NOT_EXISTED:
 					cout << "ERROR - This test is not existed" << endl;
 					break;
 				default:
@@ -170,14 +172,14 @@ public:
 		string nandData = getDataFromFile(PATH_NAND);
 
 		if (expectedData == "-1")
-			return ERROR_CANNOT_OPEN_FILE;
+			return TEST_RESULT::ERROR_CANNOT_OPEN_FILE;
 		if (nandData == "-1")
-			return ERROR_CANNOT_READ_NAND;
+			return TEST_RESULT::ERROR_CANNOT_READ_NAND;
 
 		if (nandData == expectedData)
-			return PASS;
+			return TEST_RESULT::PASS;
 		else
-			return FAIL;
+			return TEST_RESULT::FAIL;
 	}
 
 	void runTestListUsingFile(string filePath)
@@ -270,15 +272,15 @@ public:
 					int testResult = getTestResult(expectedFileName);
 					switch (testResult)
 					{
-					case PASS:
-						cout << "PASS" << endl;
+					case TEST_RESULT::PASS:
+						cout << "TEST_RESULT::PASS" << endl;
 						break;
-					case FAIL:
-						cout << "FAIL" << endl;
+					case TEST_RESULT::FAIL:
+						cout << "TEST_RESULT::FAIL" << endl;
 						break;
-					case ERROR_CANNOT_OPEN_FILE:
+					case TEST_RESULT::ERROR_CANNOT_OPEN_FILE:
 						cout << "ERROR - Cannot open file" << endl;
-					case ERROR_CANNOT_READ_NAND:
+					case TEST_RESULT::ERROR_CANNOT_READ_NAND:
 						cout << "ERROR - Cannot read nand" << endl;
 						break;
 					}
