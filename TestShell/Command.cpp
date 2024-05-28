@@ -21,6 +21,8 @@ protected:
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
+	const string INVALID_SIZE = "INVALID SIZE";
+	const string INVALID_ADDRESS_RANGE = "END ADDRESS GT START ADDRESS";
 };
 
 class ReadCommand : public Command {
@@ -255,6 +257,7 @@ private:
 	string data;
 };
 
+
 class InvalidCommand : public Command {
 public:
 	InvalidCommand() {
@@ -269,6 +272,116 @@ public:
 	bool validate(vector<string> args) override {
 		return true;
 	}
+};
+
+class EraseCommand : public Command {
+public:
+	EraseCommand(SSDRunner* ssd) {
+		this->ssdRunner = ssd;
+		this->addr = -1;
+		this->size = -1;
+	}
+
+	// Command을(를) 통해 상속됨
+	void execute() override {
+		cout << "erase " << to_string(addr) << " " << to_string(size) << endl;
+		this->ssdRunner->erase(this->addr, this->size);
+	}
+
+	bool validate(vector<string> args) override {
+		// erase [addr] [size]
+		try {
+			// format
+			if (args.size() != 3)	throw runtime_error(this->INVALID_PARAMETER);
+
+			// addr validation
+			// string to integer
+			int addr = stoi(args.at(1));
+			// range
+			if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+			// string to integer
+			int size = stoi(args.at(2));
+			if (size > 10) throw runtime_error(this->INVALID_SIZE);
+		}
+		catch (exception e) {
+			cout << e.what() << endl;
+			return false;
+		}
+
+		// set address from args
+		this->addr = stoi(args.at(1));
+		this->size = stoi(args.at(2));
+		return true;
+	}
+private:
+	SSDRunner* ssdRunner;
+	int addr;
+	int size;
+};
+
+class EraseRangeCommand : public Command {
+public:
+	EraseRangeCommand(SSDRunner* ssd) {
+		this->ssdRunner = ssd;
+		this->startAddr = -1;
+		this->endAddr = -1;
+	}
+
+	// Command을(를) 통해 상속됨
+	void execute() override {
+		
+		while (true) {
+			int size = endAddr - startAddr;
+			if (size > 10) {
+				//cout << "erase " << to_string(startAddr) << " 10" << endl;
+				this->ssdRunner->erase(this->startAddr, 10);
+				startAddr += 10;
+			}
+			else {
+				//cout << "erase " << to_string(startAddr) << " " << to_string(size) << endl;
+				this->ssdRunner->erase(this->startAddr, size);
+				break;
+			}
+			
+		}
+
+
+	}
+
+	bool validate(vector<string> args) override {
+		// erase [startAddr] [endAddr]
+		try {
+			// format
+			if (args.size() != 3)	throw runtime_error(this->INVALID_PARAMETER);
+
+			// addr validation
+			// string to integer
+			int startAddr = stoi(args.at(1));
+			// range
+			if (startAddr < 0 || 99 < startAddr) throw runtime_error(this->INVALID_LBA_RANGE);
+
+			// string to integer
+			int endAddr = stoi(args.at(2));
+			// range
+			if (endAddr < 0 || 99 < endAddr) throw runtime_error(this->INVALID_LBA_RANGE);
+
+			// start end gt
+			if (endAddr <= startAddr) throw runtime_error(this->INVALID_ADDRESS_RANGE);
+		}
+		catch (exception e) {
+			cout << e.what() << endl;
+			return false;
+		}
+
+		// set address from args
+		this->startAddr = stoi(args.at(1));
+		this->endAddr = stoi(args.at(2));
+		return true;
+	}
+private:
+	SSDRunner* ssdRunner;
+	int startAddr;
+	int endAddr;
 };
 
 // invoker
