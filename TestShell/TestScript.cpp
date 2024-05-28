@@ -182,6 +182,24 @@ public:
 			return TEST_RESULT::FAIL;
 	}
 
+	void printResult(int testResult)
+	{
+		switch (testResult)
+		{
+		case TEST_RESULT::PASS:
+			cout << "TEST_RESULT::PASS" << endl;
+			break;
+		case TEST_RESULT::FAIL:
+			cout << "TEST_RESULT::FAIL" << endl;
+			break;
+		case TEST_RESULT::ERROR_CANNOT_OPEN_FILE:
+			cout << "ERROR - Cannot open file" << endl;
+		case TEST_RESULT::ERROR_CANNOT_READ_NAND:
+			cout << "ERROR - Cannot read nand" << endl;
+			break;
+		}
+	}
+
 	void runTestListUsingFile(string filePath)
 	{
 		LoggerSingleton::getInstance().print("Run all of tests in " + filePath + " using text file");
@@ -269,21 +287,7 @@ public:
 					testFile.close();
 					// pass / fail 판단
 					string expectedFileName = "expected_" + testName + ".txt";
-					int testResult = getTestResult(expectedFileName);
-					switch (testResult)
-					{
-					case TEST_RESULT::PASS:
-						cout << "TEST_RESULT::PASS" << endl;
-						break;
-					case TEST_RESULT::FAIL:
-						cout << "TEST_RESULT::FAIL" << endl;
-						break;
-					case TEST_RESULT::ERROR_CANNOT_OPEN_FILE:
-						cout << "ERROR - Cannot open file" << endl;
-					case TEST_RESULT::ERROR_CANNOT_READ_NAND:
-						cout << "ERROR - Cannot read nand" << endl;
-						break;
-					}
+					printResult(getTestResult(expectedFileName));
 				}
 				else {
 					cout << "This test is not existed : " << testFileName << endl;
