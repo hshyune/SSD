@@ -40,6 +40,16 @@ public:
 		}
 	}
 
+	void erase(int addr, int size) {
+		string cmd = ssdPath + " E " + to_string(addr) + " " + to_string(size);
+		this->exec(cmd);
+	}
+
+	void eraseRange(int startAddr, int endAddr) {
+		int size = endAddr - startAddr;
+		this->erase(startAddr, size);
+	}
+
 private:
 	string ssdPath = "";
 	const int MAX_LBA_SIZE = 100;

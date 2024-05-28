@@ -168,6 +168,30 @@ public:
 					continue;
 				}
 			}
+			else if (cmd == "erase") {
+				EraseCommand* command = new EraseCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
+			}
+			else if (cmd == "erase_range") {
+				EraseRangeCommand* command = new EraseRangeCommand(this->ssdRunner);
+				commandContoller.setCommand(command);
+
+				bool isValid = commandContoller.validate(args);
+				if (isValid) {
+					commandContoller.execute();
+				}
+				else {
+					continue;
+				}
+			}
 			else {
 				InvalidCommand* command = new InvalidCommand();
 				commandContoller.setCommand(command);
