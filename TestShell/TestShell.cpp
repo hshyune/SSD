@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
-#include "TestLogger.cpp"
+#include "TestLogger.h"
 #include "Command.cpp"
 using namespace std;
 
