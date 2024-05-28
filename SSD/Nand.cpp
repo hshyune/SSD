@@ -40,10 +40,6 @@ void Nand::erase(int address, int size) {
 	SaveMapToFile(dataMap);
 }
 
-void Nand::flush(void) {
-	// nop
-}
-
 map<int, string> Nand::LoadMapFromFile()
 {
 	ifstream file(fileName, ios::binary);
@@ -61,7 +57,6 @@ map<int, string> Nand::LoadMapFromFile()
 
 		// Use getline to parse the key and value separated by a comma
 		if (!getline(iss, keyStr, ',') || !(iss >> value)) {
-			cerr << "Error parsing line: " << line << "\n";
 			continue;
 		}
 
@@ -78,11 +73,6 @@ void Nand::SaveMapToFile(map<int, string> data)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);
-
-	if (!file) {
-		cerr << "Savefile failed: File could not be opened\n";
-		return;
-	}
 
 	for (auto& pair : data) {
 		file << pair.first << "," << pair.second << "\n";
