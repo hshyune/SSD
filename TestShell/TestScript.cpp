@@ -11,6 +11,7 @@ using namespace std;
 
 const string PATH_TESTLIST_FILE = "run_list.lst";
 const string PATH_NAND = "nand.txt";
+const string PATH_RESULT = "result.txt";
 enum TEST_RESULT {
 	PASS = 0,
 	FAIL,
@@ -171,8 +172,8 @@ public:
 
 	int getTestResult(const string& expectedFilePath)
 	{
-		string expectedData = getDataFromFile(expectedFilePath);
-		string nandData = getDataFromFile(PATH_NAND);
+		string expectedData = getDataFromFile(PATH_RESULT);
+		string nandData = getDataFromFile(PATH_RESULT);
 
 		if (expectedData == "-1")
 			return TEST_RESULT::ERROR_CANNOT_OPEN_FILE;
