@@ -30,6 +30,10 @@ private:
     Nand* nand = nullptr;
 
     void saveToFile(const list<Command>& commandBuffer);
+    void ignoreWriteAfterWrite(list<Command>& commandBuffer);
+    void ignoreWriteAfterErase(list<Command>& commandBuffer);
     void optimizeBuffer(list<Command>& commandBuffer);
+    void mergeErase(list<Command>& commandBuffer);
+    void narrowRangeOfErase(list<Command>& commandBuffer);
 };
 
