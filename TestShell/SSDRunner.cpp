@@ -40,6 +40,11 @@ public:
 		}
 	}
 
+	void erase(int addr, int size) {
+		string cmd = ssdPath + " E " + to_string(addr) + " " + to_string(size);
+		this->exec(cmd);
+	}
+
 private:
 	string ssdPath = "";
 	const int MAX_LBA_SIZE = 100;
