@@ -24,8 +24,22 @@ public:
 		this->exec(cmd);
 	}
 
+	void fullread() {
+		for (int addr = 0; addr < MAX_LBA_SIZE; addr++) {
+			this->read(addr);
+		}
+	}
+
+	void fullwrite(string data) {
+		for (int addr = 0; addr < MAX_LBA_SIZE; addr++) {
+			this->write(addr, data);
+		}
+	}
+
 private:
 	string SSDPath = "../TestShell/SSD.exe";
+	const int MAX_LBA_SIZE = 100;
+
 	string exec(const string cmdstr) {
 		// string to char*
 		char cmd[512];
