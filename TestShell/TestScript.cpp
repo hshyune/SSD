@@ -11,9 +11,11 @@ using namespace std;
 
 const string PATH_TESTLIST_FILE = "run_list.lst";
 const string PATH_NAND = "nand.txt";
-const int SUCCESS = 0;
+const int PASS = 0;
 const int FAIL = 1;
 const int ERROR_TEST_NOT_EXISTED = 2;
+const int ERROR_CANNOT_OPEN_FILE = 3;
+const int ERROR_CANNOT_READ_NAND = 4;
 
 class ITestApp {
 public:
@@ -26,7 +28,7 @@ public:
 	{
 		// 먼저fullwrite를 수행한다.
 		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
-		return SUCCESS;
+		return PASS;
 	}
 };
 
@@ -37,7 +39,7 @@ public:
 		// 0~5 번 LBA 에 0xAAAABBBB 값으로 총 30번 Write를 수행한다.
 		// 0~5 번 LBA 에 0x12345678 값으로 1 회 Over Write를 수행한다.
 		// 0~5 번 LBA Read 했을 때 정상적으로 값이 읽히는지 확인한다.
-		return SUCCESS;
+		return PASS;
 	}
 };
 
@@ -47,7 +49,7 @@ public:
 	{
 		// fullwrite를 수행
 		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
-		return SUCCESS;
+		return PASS;
 	}
 };
 
@@ -56,7 +58,7 @@ public:
 	int runTest() override
 	{
 		// fullread를 10회
-		return SUCCESS;
+		return PASS;
 	}
 };
 
@@ -65,7 +67,7 @@ public:
 	int runTest() override
 	{
 		// full write 10회
-		return SUCCESS;
+		return PASS;
 	}
 };
 
@@ -124,7 +126,7 @@ public:
 				setTestApp(testName);
 				switch (runTest(testName))
 				{
-				case SUCCESS:
+				case PASS:
 					cout << "PASS" << endl;
 					break;
 				case FAIL:
@@ -157,8 +159,25 @@ public:
 		}
 		else {
 			cout << "Cannot open this file : " << filePath << endl;
+			return "-1";
 		}
 		return result;
+	}
+
+	int getTestResult(const string& expectedFilePath)
+	{
+		string expectedData = getDataFromFile(expectedFilePath);
+		string nandData = getDataFromFile(PATH_NAND);
+
+		if (expectedData == "-1")
+			return ERROR_CANNOT_OPEN_FILE;
+		if (nandData == "-1")
+			return ERROR_CANNOT_READ_NAND;
+
+		if (nandData == expectedData)
+			return PASS;
+		else
+			return FAIL;
 	}
 
 	void runTestListUsingFile(string filePath)
@@ -247,13 +266,22 @@ public:
 					}
 					testFile.close();
 					// pass / fail 판단
-					string resultFileName = "expected_" + testName + ".txt";
-					string expectedData = getDataFromFile(resultFileName);
-					string resultData = getDataFromFile(PATH_NAND);
-					if (expectedData == resultData)
+					string expectedFileName = "expected_" + testName + ".txt";
+					int testResult = getTestResult(expectedFileName);
+					switch (testResult)
+					{
+					case PASS:
 						cout << "PASS" << endl;
-					else
-						cout << FAIL << endl;
+						break;
+					case FAIL:
+						cout << "FAIL" << endl;
+						break;
+					case ERROR_CANNOT_OPEN_FILE:
+						cout << "ERROR - Cannot open file" << endl;
+					case ERROR_CANNOT_READ_NAND:
+						cout << "ERROR - Cannot read nand" << endl;
+						break;
+					}
 				}
 				else {
 					cout << "This test is not existed : " << testFileName << endl;
@@ -266,6 +294,7 @@ public:
 			return;
 		}
 	}
+
 private:
 	ITestApp* testApp;
 	CommandContoller commandContoller;
