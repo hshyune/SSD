@@ -31,6 +31,70 @@ public:
 		this->logLevel = logLevel;
 	}
 
+	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
+		if (logLevel == LOG_LEVEL::NO)
+			return;
+		manageLogFiles();
+
+		std::string logOutput = getCurrentTime("[%g.%m.%d %R]");
+		logOutput += getCallerName(std::string(str) + "()");
+		logOutput += getLogMessage(logMessage);
+		printConsoleAndFile(logOutput);
+	}
+
+	void manageLogFiles() {
+		auto logFileSize = filesize();
+		if (logFileSize >= logMaxSize) {
+			if (untilFileExist) {
+				makeZipLog();
+			}
+			makeNewUntilLog();
+		}
+	}
+
+	std::ifstream::pos_type filesize() {
+		std::ifstream in(getLogPath(logFile).c_str(), std::ifstream::ate | std::ifstream::binary);
+		return in.tellg();
+	}
+
+	void makeZipLog() {
+		std::string logFile = getLogPath(latestBackupFile + ".log");
+		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
+		try {
+			int result = std::rename(logFile.c_str(), zipFile.c_str());
+			if (result != 0) {
+				throw std::runtime_error(std::string("[Rename Error] : ") + logFile + " -> " + zipFile);
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			exit(1);
+		}
+	}
+
+	void makeNewUntilLog() {
+		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
+		std::string baselogFile = getLogPath(logFile);
+		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
+
+		try {
+			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
+			if (result != 0) {
+				throw std::runtime_error(std::string("[Rename Error] : ") + baselogFile + " -> " + backuplogFile);
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			exit(1);
+		}
+
+		untilFileExist = true;
+	}
+
+	std::string getLogPath(const std::string& logFileName) {
+		return logBase + "/" + logFileName;
+	}
+
 	std::string getCurrentTime(const std::string& timeFormat) {
 		time_t rawtime;
 		struct tm* timeinfo;
@@ -70,70 +134,6 @@ public:
 		std::fstream fs(getLogPath(logFile), std::fstream::out | std::fstream::app);
 		fs << logOutput << std::endl;
 		fs.close();
-	}
-
-	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
-		if (logLevel == LOG_LEVEL::NO)
-			return;
-		manageLogFiles();
-
-		std::string logOutput = getCurrentTime("[%g.%m.%d %R]");
-		logOutput += getCallerName(std::string(str) + "()");
-		logOutput += getLogMessage(logMessage);
-		printConsoleAndFile(logOutput);
-	}
-
-	std::ifstream::pos_type filesize() {
-		std::ifstream in(getLogPath(logFile).c_str(), std::ifstream::ate | std::ifstream::binary);
-		return in.tellg();
-	}
-
-	void manageLogFiles() {
-		auto logFileSize = filesize();
-		if (logFileSize >= logMaxSize) {
-			if (untilFileExist) {
-				makeZipLog();
-			}
-			makeNewUntilLog();
-		}
-	}
-
-	void makeZipLog() {
-		std::string logFile = getLogPath(latestBackupFile + ".log");
-		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
-		try {
-			int result = std::rename(logFile.c_str(), zipFile.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + logFile + " -> " + zipFile);
-			}
-		}
-		catch (const std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
-			exit(1);
-		}
-	}
-
-	void makeNewUntilLog() {
-		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
-		std::string baselogFile = getLogPath(logFile);
-		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
-
-		try {
-			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + baselogFile + " -> " + backuplogFile);
-			}
-		}
-		catch (const std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
-			exit(1);
-		}
-
-		untilFileExist = true;
-	}
-
-	std::string getLogPath(const std::string& logFileName) {
-		return logBase + "/" + logFileName;
 	}
 
 private:
