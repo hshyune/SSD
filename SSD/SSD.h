@@ -12,6 +12,7 @@ public:
 	std::string read(int address) override;
 	void write(int address, const std::string& data) override;
 	void erase(int address, int size) override;
+	void flush(void) override;
 
 private:
 	IIoInterface* ioInterface;
