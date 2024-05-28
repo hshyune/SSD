@@ -134,20 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
-    <ClCompile Include="common.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SSDRunner.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="TestScript.cpp" />
     <ClCompile Include="TestShell.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="help.txt">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "common.h"
 #include <stdio.h>
 #include <iostream>
 #include <cstdlib>
@@ -12,7 +11,7 @@ using namespace std;
 class SSDRunner {
 public:
 	SSDRunner() {
-		this->ssdPath = getSolutionPath() + "x64\\debug\\SSD.exe";
+		this->ssdPath = "SSD.exe";
 	}
 
 	string read(int address) {
