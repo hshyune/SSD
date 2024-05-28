@@ -10,11 +10,6 @@
 #include <vector>
 #include <algorithm>
 
-enum class LOG_LEVEL {
-	DEBUG,
-	INFO,
-	NO,
-};
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +92,7 @@ void LogManager::makeBackupLog() {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-static void LogCleaner::runCleanLog(bool cleanLog, const std::vector<std::string>& cleanExtensionLists) {
+void LogCleaner::runCleanLog(bool cleanLog, const std::vector<std::string>& cleanExtensionLists) {
 	if (cleanLog == false)
 		return;
 	try {
@@ -109,7 +104,7 @@ static void LogCleaner::runCleanLog(bool cleanLog, const std::vector<std::string
 	}
 }
 
-static std::string LogCleaner::makeStringExtensionLists(const std::vector<std::string>& cleanExtensionLists) {
+std::string LogCleaner::makeStringExtensionLists(const std::vector<std::string>& cleanExtensionLists) {
 	std::string cleanExtLists;
 	for (const std::string& cleanExtension : cleanExtensionLists) {
 		cleanExtLists += LogEnv::getLogBase() + "/*." + cleanExtension + " ";
@@ -117,7 +112,7 @@ static std::string LogCleaner::makeStringExtensionLists(const std::vector<std::s
 	return cleanExtLists;
 }
 
-static void LogCleaner::removeExtension(const std::string& clean_ExtLists) {
+void LogCleaner::removeExtension(const std::string& clean_ExtLists) {
 	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	std::string cleanCommand = git_rm + " -f " + clean_ExtLists;
 	int result = std::system(cleanCommand.c_str());
@@ -128,7 +123,7 @@ static void LogCleaner::removeExtension(const std::string& clean_ExtLists) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void LogDebugger::debugListLogFile(const char* callerName = __builtin_FUNCTION()) {
+void LogDebugger::debugListLogFile(const char* callerName) {
 	if (getLogLevel() == LOG_LEVEL::DEBUG) {
 		static int count = 0;
 		std::cout << "========================== [" << callerName << "] " << count++ << " Iteration \n";
@@ -144,14 +139,14 @@ void LogDebugger::listLogOutputDirectory() {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-static LoggerSingleton& LoggerSingleton::getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO, bool cleanLog = false) {
+LoggerSingleton& LoggerSingleton::getInstance(LOG_LEVEL logLevel, bool cleanLog) {
 	static LoggerSingleton instance{};
 	instance.setLoglevel(logLevel);
 	instance.cleaner.runCleanLog(cleanLog, { "log", "zip" });
 	return instance;
 }
 
-void LoggerSingleton::print(std::string logMessage, const char* callerName = __builtin_FUNCTION()) {
+void LoggerSingleton::print(std::string logMessage, const char* callerName) {
 	if (getLogLevel() == LOG_LEVEL::NO)
 		return;
 	manager.manageLogFiles();

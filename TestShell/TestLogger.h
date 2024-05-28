@@ -24,8 +24,6 @@ private:
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
 
-const std::string LogEnv::logBase{ "../log" };
-
 /////////////////////////////////////////////////////////////////////////////////
 
 class LogUtils : public LogEnv {
