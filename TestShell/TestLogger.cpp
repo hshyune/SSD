@@ -80,7 +80,7 @@ public:
 			if (untilFileExist) {
 				makeZipLog();
 			}
-			makeNewUntilLog();
+			makeBackupLog();
 		}
 	}
 
@@ -108,7 +108,7 @@ public:
 		}
 	}
 
-	void makeNewUntilLog() {
+	void makeBackupLog() {
 		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
 		std::string baselogFile = getLogPath(logFile);
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
