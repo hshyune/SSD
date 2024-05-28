@@ -71,7 +71,7 @@ public:
 		logOutput += getCallerName(std::string(callerName) + "()");
 		logOutput += getLogMessage(logMessage);
 		printConsoleAndFile(logOutput);
-		LogIterationDebugger();
+		debugListLogFile();
 	}
 
 	void manageLogFiles() {
@@ -159,7 +159,7 @@ public:
 		fs.close();
 	}
 
-	void LogIterationDebugger(const char* callerName = __builtin_FUNCTION()) {
+	void debugListLogFile(const char* callerName = __builtin_FUNCTION()) {
 		if (logLevel == LOG_LEVEL::DEBUG) {
 			static int count = 0;
 			std::cout << "========================== [" << callerName << "] " << count++ << " Iteration \n";
