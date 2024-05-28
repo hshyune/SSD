@@ -72,6 +72,11 @@ void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
 void CommandBuffer::write(int address, const string& data) {
 	auto commandBuffer = LoadFromFile();
 
+	if (getBufferSize() >= 10) {
+		flush();
+		commandBuffer = LoadFromFile();
+	}
+
 	Command c;
 	c.type = 'W';
 	c.address = address;
@@ -82,13 +87,15 @@ void CommandBuffer::write(int address, const string& data) {
 	optimizeBuffer(commandBuffer);
 
 	saveToFile(commandBuffer);
-	if (getBufferSize() >= 10) {
-		flush();
-	}
 }
 
 void CommandBuffer::erase(int address, int size) {
 	auto commandBuffer = LoadFromFile();
+
+	if (getBufferSize() >= 10) {
+		flush();
+		commandBuffer = LoadFromFile();
+	}
 
 	Command c;
 	c.type = 'E';
@@ -100,9 +107,6 @@ void CommandBuffer::erase(int address, int size) {
 	optimizeBuffer(commandBuffer);
 
 	saveToFile(commandBuffer);
-	if (getBufferSize() >= 10) {
-		flush();
-	}
 }
 
 void CommandBuffer::flush(void) {
