@@ -172,10 +172,15 @@ public:
 		if (logLevel == LOG_LEVEL::DEBUG) {
 			static int count = 0;
 			std::cout << "========================== [" << str << "] " << count++ << " Iteration \n";
-			std::string findLogFile = git_ls + " " + logBase;
-			system(findLogFile.c_str());
+			listLogOutputDirectory();
 			std::cout << "========================== \n";
 		}
+	}
+
+	void listLogOutputDirectory()
+	{
+		std::string findLogFile = git_ls + " " + logBase;
+		system(findLogFile.c_str());
 	}
 
 private:
