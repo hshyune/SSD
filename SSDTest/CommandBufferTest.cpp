@@ -70,8 +70,8 @@ TEST_F(CommandBufferTest, FlushTest_testIfBufferFlushedWhenBufferIsFull) {
     for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
 		cb->write(i, "data"  + std::to_string(i));
 	}
-    EXPECT_EQ(cb->getBufferSize(), 10);
-    cb->write(MAX_BUFFER_SIZE, "data10");
+    EXPECT_EQ(cb->getBufferSize(), MAX_BUFFER_SIZE);
+    cb->write(MAX_BUFFER_SIZE, "data" + std::to_string(MAX_BUFFER_SIZE));
     EXPECT_EQ(cb->getBufferSize(), 1);
     for (int i = 0; i <= MAX_BUFFER_SIZE; i++) {
         EXPECT_EQ(cb->read(i), "data" + std::to_string(i));
