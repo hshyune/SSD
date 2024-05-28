@@ -17,14 +17,14 @@ enum class LOG_LEVEL {
 
 class LoggerSingleton {
 public:
-	static LoggerSingleton& getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO) {
+	static LoggerSingleton& getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO, bool cleanLog = false) {
 		static LoggerSingleton instance{};
 		instance.setLoglevel(logLevel);
+		instance.runCleanLog(cleanLog, { "log", "zip" });
 		return instance;
 	}
 private:
 	LoggerSingleton() {
-		runCleanLog({ "log", "zip" });
 	}
 	LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
 	LoggerSingleton(const LoggerSingleton& other) = delete;
@@ -33,7 +33,9 @@ public:
 		this->logLevel = logLevel;
 	}
 
-	void runCleanLog(const std::vector<std::string>& cleanExtensionLists) {
+	static void runCleanLog(bool cleanLog, const std::vector<std::string>& cleanExtensionLists) {
+		if (cleanLog == false)
+			return;
 		try {
 			std::string cleanExt;
 			for (const std::string& cleanExtension : cleanExtensionLists) {
@@ -168,12 +170,17 @@ public:
 	}
 
 private:
+	static const std::string logBase;
+	static const std::string git_rm;
+
+private:
 	bool untilFileExist{ false };
 	const int logMaxSize{ 1024 * 10 };
-	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
 	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
-	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
+
+const std::string LoggerSingleton::logBase{ "../log" };
+const std::string LoggerSingleton::git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
