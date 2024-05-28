@@ -22,10 +22,7 @@ protected:
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
 	const string INVALID_SIZE = "INVALID SIZE";
-<<<<<<< HEAD
 	const string INVALID_ADDRESS_RANGE = "END ADDRESS GT START ADDRESS";
-=======
->>>>>>> 05aafb3c780efa5f4ed090d686caf6854dffcdd7
 };
 
 class ReadCommand : public Command {
