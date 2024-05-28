@@ -66,7 +66,7 @@ TEST_F(CommandBufferTest, FlushTest_testIfDataExistsAfterFlush) {
     EXPECT_EQ(cb->read(11), "data");
 }
 
-TEST_F(CommandBufferTest, FlushTest_testIfBufferFlushedWhenBufferIsFull) {
+TEST_F(CommandBufferTest, FlushTest_testIfBufferFlushedWhenBufferIsFull_1) {
     const int MAX_BUFFER_SIZE = 10;
     for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
 		cb->write(i, "data"  + std::to_string(i));
@@ -77,6 +77,17 @@ TEST_F(CommandBufferTest, FlushTest_testIfBufferFlushedWhenBufferIsFull) {
     for (int i = 0; i <= MAX_BUFFER_SIZE; i++) {
         EXPECT_EQ(cb->read(i), "data" + std::to_string(i));
     }
+}
+
+
+TEST_F(CommandBufferTest, FlushTest_testIfBufferFlushedWhenBufferIsFull_2) {
+    const int MAX_BUFFER_SIZE = 10;
+    for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
+        cb->erase(i*3+1, 1);
+    }
+    EXPECT_EQ(cb->getBufferSize(), MAX_BUFFER_SIZE);
+    cb->erase(MAX_BUFFER_SIZE*3 +1, 1);
+    EXPECT_EQ(cb->getBufferSize(), 1);
 }
 
 // If a later 'write' command has the same address as an earlier one, remove the earlier one
