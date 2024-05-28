@@ -12,6 +12,8 @@ using namespace std;
 const string PATH_TESTLIST_FILE = "run_list.lst";
 const string PATH_NAND = "nand.txt";
 const string PATH_RESULT = "result.txt";
+const string PATH_RESOURCE_FOLDER = "..\\..\\resources\\";
+
 enum TEST_RESULT {
 	PASS = 0,
 	FAIL,
@@ -125,7 +127,7 @@ public:
 	void runTestList()
 	{
 		LoggerSingleton::getInstance().print("Run all of tests in " + PATH_TESTLIST_FILE);
-		ifstream file(PATH_TESTLIST_FILE);
+		ifstream file(PATH_RESOURCE_FOLDER + PATH_TESTLIST_FILE);
 		string testName = "";
 		if (file.is_open()) {
 			while (getline(file, testName)) {
@@ -207,13 +209,13 @@ public:
 	void runTestListUsingFile(string filePath)
 	{
 		LoggerSingleton::getInstance().print("Run all of tests in " + filePath + " using text file");
-		ifstream file(filePath);
+		ifstream file(PATH_RESOURCE_FOLDER + filePath);
 		string testName = "";
 		if (file.is_open()) {
 			while (getline(file, testName)) {
 				cout << testName << "    ---    " << "Run..." << endl;
 				string testFileName = "test_" + testName + ".txt";
-				ifstream testFile(testFileName);
+				ifstream testFile(PATH_RESOURCE_FOLDER + testFileName);
 				string input = "";
 				if (testFile.is_open())
 				{
