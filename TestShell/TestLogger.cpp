@@ -24,8 +24,7 @@ public:
 		return instance;
 	}
 private:
-	LoggerSingleton() {
-	}
+	LoggerSingleton() {}
 	LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
 	LoggerSingleton(const LoggerSingleton& other) = delete;
 public:
@@ -37,18 +36,7 @@ public:
 		if (cleanLog == false)
 			return;
 		try {
-			std::string logBase{ "../log" };
-			std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
-
-			std::string cleanExt;
-			for (const std::string& cleanExtension : cleanExtensionLists) {
-				cleanExt += logBase + "/*." + cleanExtension + " ";
-			}
-			std::string cleanCommand = git_rm + " -f " + cleanExt;
-			int result = std::system(cleanCommand.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
-			}
+			removeExtension(makeStringExtensionLists(cleanExtensionLists));
 		}
 		catch (const std::exception& ex) {
 			std::cerr << ex.what() << std::endl;
@@ -56,16 +44,34 @@ public:
 		}
 	}
 
-	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
+	static std::string makeStringExtensionLists(const std::vector<std::string>& cleanExtensionLists) {
+		std::string cleanExtLists;
+		std::string logBase{ "../log" };
+		for (const std::string& cleanExtension : cleanExtensionLists) {
+			cleanExtLists += logBase + "/*." + cleanExtension + " ";
+		}
+		return cleanExtLists;
+	}
+
+	static void removeExtension(const std::string& clean_ExtLists) {
+		std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
+		std::string cleanCommand = git_rm + " -f " + clean_ExtLists;
+		int result = std::system(cleanCommand.c_str());
+		if (result != 0) {
+			throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
+		}
+	}
+
+	void print(std::string logMessage, const char * callerName = __builtin_FUNCTION()) {
 		if (logLevel == LOG_LEVEL::NO)
 			return;
 		manageLogFiles();
 
 		std::string logOutput = getCurrentTime("[%g.%m.%d %R]");
-		logOutput += getCallerName(std::string(str) + "()");
+		logOutput += getCallerName(std::string(callerName) + "()");
 		logOutput += getLogMessage(logMessage);
 		printConsoleAndFile(logOutput);
-		LogIterationDebugger();
+		debugListLogFile();
 	}
 
 	void manageLogFiles() {
@@ -74,7 +80,7 @@ public:
 			if (untilFileExist) {
 				makeZipLog();
 			}
-			makeNewUntilLog();
+			makeBackupLog();
 		}
 	}
 
@@ -86,10 +92,14 @@ public:
 	void makeZipLog() {
 		std::string logFile = getLogPath(latestBackupFile + ".log");
 		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
+		renameSrcToDst(logFile, zipFile);
+	}
+
+	void renameSrcToDst(std::string& srcFile, std::string& dstFile) {
 		try {
-			int result = std::rename(logFile.c_str(), zipFile.c_str());
+			int result = std::rename(srcFile.c_str(), dstFile.c_str());
 			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + logFile + " -> " + zipFile);
+				throw std::runtime_error(std::string("[Rename Error] : ") + srcFile + " -> " + dstFile);
 			}
 		}
 		catch (const std::exception& ex) {
@@ -98,22 +108,11 @@ public:
 		}
 	}
 
-	void makeNewUntilLog() {
+	void makeBackupLog() {
 		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
 		std::string baselogFile = getLogPath(logFile);
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
-
-		try {
-			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + baselogFile + " -> " + backuplogFile);
-			}
-		}
-		catch (const std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
-			exit(1);
-		}
-
+		renameSrcToDst(baselogFile, backuplogFile);
 		untilFileExist = true;
 	}
 
@@ -123,11 +122,9 @@ public:
 
 	std::string getCurrentTime(const std::string& timeFormat) {
 		time_t rawtime;
-		struct tm* timeinfo;
-		char buffer[80]{};
-
 		time(&rawtime);
-		timeinfo = localtime(&rawtime);
+		struct tm* timeinfo = localtime(&rawtime);
+		char buffer[80]{};
 		strftime(buffer, 80, timeFormat.c_str(), timeinfo);
 		return std::string(buffer);
 	}
@@ -162,14 +159,18 @@ public:
 		fs.close();
 	}
 
-	void LogIterationDebugger(const char* str = __builtin_FUNCTION()) {
+	void debugListLogFile(const char* callerName = __builtin_FUNCTION()) {
 		if (logLevel == LOG_LEVEL::DEBUG) {
 			static int count = 0;
-			std::cout << "========================== [" << str << "] " << count++ << " Iteration \n";
-			std::string findLogFile = git_ls + " " + logBase;
-			system(findLogFile.c_str());
+			std::cout << "========================== [" << callerName << "] " << count++ << " Iteration \n";
+			listLogOutputDirectory();
 			std::cout << "========================== \n";
 		}
+	}
+
+	void listLogOutputDirectory() {
+		std::string findLogFile = git_ls + " " + logBase;
+		system(findLogFile.c_str());
 	}
 
 private:
@@ -178,7 +179,6 @@ private:
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
-	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
