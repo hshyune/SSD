@@ -91,7 +91,25 @@ public:
 	void manageLogFiles() {
 		auto logFileSize = filesize();
 		if (logFileSize >= logMaxSize) {
+			if (untilFileExist) {
+				makeZipLog();
+			}
 			makeNewUntilLog();
+		}
+	}
+
+	void makeZipLog() {
+		std::string logFile = getLogPath(latestBackupFile + ".log");
+		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
+		try {
+			int result = std::rename(logFile.c_str(), zipFile.c_str());
+			if (result != 0) {
+				throw std::runtime_error(std::string("[Rename Error] : ") + logFile + " -> " + zipFile);
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			exit(1);
 		}
 	}
 
@@ -110,6 +128,8 @@ public:
 			std::cerr << ex.what() << std::endl;
 			exit(1);
 		}
+
+		untilFileExist = true;
 	}
 
 	std::string getLogPath(const std::string& logFileName) {
@@ -117,6 +137,7 @@ public:
 	}
 
 private:
+	bool untilFileExist{ false };
 	const int logMaxSize{ 1024 * 10 };
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
