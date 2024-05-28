@@ -28,7 +28,7 @@ void SSD::erase(int address, int size) {
 	if (address < 0 || address + size >= MAX_LBA_COUNT) {
 		return;
 	}
-	if (size <= 0) {
+	if (size <= 0 || size > 10) {
 		return;
 	}
 

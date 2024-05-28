@@ -113,6 +113,13 @@ TEST_F(SSDTest, Erase_InvalidSize3) {
 	ssd.erase(address, size);
 }
 
+TEST_F(SSDTest, Erase_InvalidSize4) {
+	int address = 10;
+	int size = 11;
+	EXPECT_CALL(mock, erase(address, size)).Times(0);
+	ssd.erase(address, size);
+}
+
 TEST_F(SSDTest, Flush_Success) {
 	EXPECT_CALL(mock, flush()).Times(1);
 	ssd.flush();
