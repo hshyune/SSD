@@ -36,8 +36,7 @@ public:
 		if (cleanLog == false)
 			return;
 		try {
-			std::string cleanExt = makeStringExtensionLists(cleanExtensionLists);
-			removeExtension(cleanExt);
+			removeExtension(makeStringExtensionLists(cleanExtensionLists));
 		}
 		catch (const std::exception& ex) {
 			std::cerr << ex.what() << std::endl;
