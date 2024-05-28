@@ -4,8 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
-CommandBuffer::CommandBuffer(Nand* nand, const string& fileName) : fileName(fileName) {
-	this->nand = nand;
+CommandBuffer::CommandBuffer(IIoInterface* storage, const string& fileName) : fileName(fileName) {
+	this->storage = storage;
 }
 
 string CommandBuffer::read(int address) {
@@ -19,7 +19,7 @@ string CommandBuffer::read(int address) {
 		}
 	}
 
-	return nand->read(address);
+	return storage->read(address);
 }
 
 bool isInRange(int target, int start, int end) {
@@ -155,10 +155,10 @@ void CommandBuffer::flush(void) {
 	for (auto iter = commandBuffer.begin(); iter != commandBuffer.end(); iter++) {
 		switch (iter->type) {
 		case 'W':
-			nand->write(iter->address, iter->data);
+			storage->write(iter->address, iter->data);
 			break;
 		case 'E':
-			nand->erase(iter->address, stoi(iter->data));
+			storage->erase(iter->address, stoi(iter->data));
 			break;
 		}
 	}

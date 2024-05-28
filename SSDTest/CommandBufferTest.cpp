@@ -1,5 +1,6 @@
 ﻿#include "gtest/gtest.h"
 #include "../SSD/CommandBuffer.cpp"
+#include "../SSD/Nand.h"
 
 class CommandBufferTest : public ::testing::Test {
 protected:
@@ -7,7 +8,7 @@ protected:
     CommandBuffer* cb;
 
     std::string testNandFileName = "test_nand.txt";
-    Nand* nand;
+    IIoInterface* nand;
 
     void SetUp() override {
         nand = new Nand(testNandFileName);
