@@ -62,13 +62,13 @@ public:
 		}
 	}
 
-	void print(std::string logMessage, const char* str = __builtin_FUNCTION()) {
+	void print(std::string logMessage, const char * callerName = __builtin_FUNCTION()) {
 		if (logLevel == LOG_LEVEL::NO)
 			return;
 		manageLogFiles();
 
 		std::string logOutput = getCurrentTime("[%g.%m.%d %R]");
-		logOutput += getCallerName(std::string(str) + "()");
+		logOutput += getCallerName(std::string(callerName) + "()");
 		logOutput += getLogMessage(logMessage);
 		printConsoleAndFile(logOutput);
 		LogIterationDebugger();
