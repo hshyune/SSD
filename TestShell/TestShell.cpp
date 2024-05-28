@@ -5,7 +5,6 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
-#include "TestScript.cpp"
 #include "TestLogger.cpp"
 #include "Command.cpp"
 using namespace std;
@@ -18,11 +17,9 @@ const string INVALID_COMMAND = "INVALID COMMAND";
 class TestShell {
 public:
 	TestShell() {
-		testApp = nullptr;
 		this->ssdRunner = new SSDRunner();
 	}
 	~TestShell() {
-		delete testApp;
 	}
 	void write(int address, string data) {
 		ssd.write(address, data);
@@ -186,7 +183,6 @@ public:
 
 private:
 	SSDRunner ssd;
-	ITestApp* testApp;
 	bool isRunning = true;
 	LoggerSingleton& logger{ LoggerSingleton::getInstance() };
 
