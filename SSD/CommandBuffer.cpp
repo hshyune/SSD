@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 CommandBuffer::CommandBuffer(Nand* nand, const string& fileName) : fileName(fileName) {
 	this->nand = nand;
@@ -21,48 +22,74 @@ string CommandBuffer::read(int address) {
 	return nand->read(address);
 }
 
-void CommandBuffer::write(int address, const string& data) {
-	auto commandBuffer = LoadFromFile();
-
-	list<Command>::iterator iter = commandBuffer.begin();
-	for (auto iter = commandBuffer.begin(); iter != commandBuffer.end(); ) {
-		if (iter->type == 'W' && iter->address == address) {
-			iter = commandBuffer.erase(iter);
-		}
-		else {
-			++iter;
+void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
+	if (commandBuffer.size() < 2) {
+		return;
+	}
+	for (auto earlierCmd = commandBuffer.begin(); earlierCmd != commandBuffer.end(); ++earlierCmd) {
+		for (auto laterCmd = next(earlierCmd); laterCmd != commandBuffer.end(); ++laterCmd) {
+			if (earlierCmd->type == 'W' && laterCmd->type == 'W' && earlierCmd->address == laterCmd->address) {
+				commandBuffer.erase(earlierCmd);
+				optimizeBuffer(commandBuffer);
+				return;
+			}
+			else if (earlierCmd->type == 'W' && laterCmd->type == 'E' && laterCmd->address <= earlierCmd->address && earlierCmd->address < laterCmd->address + stoi(laterCmd->data)) {
+				commandBuffer.erase(earlierCmd);
+				optimizeBuffer(commandBuffer);
+				return;
+			}
+			else if (earlierCmd->type == 'E' && laterCmd->type == 'W' && earlierCmd->address <= laterCmd->address && laterCmd->address < earlierCmd->address + stoi(earlierCmd->data)) {
+				if (stoi(earlierCmd->data) == 1) {
+					commandBuffer.erase(earlierCmd);
+					optimizeBuffer(commandBuffer);
+					return;
+				}
+				else if (earlierCmd->address == laterCmd->address) {
+					earlierCmd->address++;
+					optimizeBuffer(commandBuffer);
+					return;
+				}
+				else if (earlierCmd->address + stoi(earlierCmd->data) - 1 == laterCmd->address) {
+					earlierCmd->data = to_string(stoi(earlierCmd->data) - 1);
+					optimizeBuffer(commandBuffer);
+					return;
+				}
+			}
+			else if (earlierCmd->type == 'E' && laterCmd->type == 'E') {
+				if ((earlierCmd->address <= laterCmd->address && laterCmd->address <= earlierCmd->address + stoi(earlierCmd->data)) ||
+					(laterCmd->address <= earlierCmd->address && earlierCmd->address <= laterCmd->address + stoi(laterCmd->data))) {
+					earlierCmd->address = min(earlierCmd->address, laterCmd->address);
+					earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
+					commandBuffer.erase(laterCmd);
+					optimizeBuffer(commandBuffer);
+					return;
+				}
+			}
 		}
 	}
+}
+
+void CommandBuffer::write(int address, const string& data) {
+	auto commandBuffer = LoadFromFile();
 
 	Command c;
 	c.type = 'W';
 	c.address = address;
 	c.data = data;
-	
+
 	commandBuffer.push_back(c);
 
-	SaveToFile(commandBuffer);
+	optimizeBuffer(commandBuffer);
+
+	saveToFile(commandBuffer);
+	if (getBufferSize() >= 10) {
+		flush();
+	}
 }
 
 void CommandBuffer::erase(int address, int size) {
 	auto commandBuffer = LoadFromFile();
 
-	// delete write command in erase range
-	for (int curAddr = address; curAddr < address + size; curAddr++) {
-		list<Command>::iterator iter = commandBuffer.begin();
-		for (iter = commandBuffer.begin(); iter != commandBuffer.end(); ) {
-			if (iter->type == 'W' && iter->address == address) {
-				iter = commandBuffer.erase(iter);
-			}
-			else {
-				iter++;
-			}
-		}
-	}
-	
-	// todo: merge erase
-
-	// add erase command to commandBuffer
 	Command c;
 	c.type = 'E';
 	c.address = address;
@@ -70,7 +97,12 @@ void CommandBuffer::erase(int address, int size) {
 
 	commandBuffer.push_back(c);
 
-	SaveToFile(commandBuffer);
+	optimizeBuffer(commandBuffer);
+
+	saveToFile(commandBuffer);
+	if (getBufferSize() >= 10) {
+		flush();
+	}
 }
 
 void CommandBuffer::flush(void) {
@@ -89,7 +121,13 @@ void CommandBuffer::flush(void) {
 	}
 
 	commandBuffer.clear();
-	SaveToFile(commandBuffer);
+	saveToFile(commandBuffer);
+}
+
+size_t CommandBuffer::getBufferSize() {
+	auto commandBuffer = LoadFromFile();
+	cout << "Buffer size: " << commandBuffer.size() << endl;
+	return commandBuffer.size();
 }
 
 list<Command> CommandBuffer::LoadFromFile()
@@ -128,7 +166,7 @@ list<Command> CommandBuffer::LoadFromFile()
 	return commandBuffer;
 }
 
-void CommandBuffer::SaveToFile(const list<Command>& commandBuffer)
+void CommandBuffer::saveToFile(const list<Command>& commandBuffer)
 {
 	// always overwrite the file with the new data (ios::trunc)
 	ofstream file(fileName, ios::binary | ios::trunc);
