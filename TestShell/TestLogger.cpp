@@ -37,6 +37,9 @@ public:
 		if (cleanLog == false)
 			return;
 		try {
+			std::string logBase{ "../log" };
+			std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
+
 			std::string cleanExt;
 			for (const std::string& cleanExtension : cleanExtensionLists) {
 				cleanExt += logBase + "/*." + cleanExtension + " ";
@@ -170,17 +173,12 @@ public:
 	}
 
 private:
-	static const std::string logBase;
-	static const std::string git_rm;
-
-private:
 	bool untilFileExist{ false };
 	const int logMaxSize{ 1024 * 10 };
+	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
+	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
-
-const std::string LoggerSingleton::logBase{ "../log" };
-const std::string LoggerSingleton::git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };

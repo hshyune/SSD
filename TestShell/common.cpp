@@ -7,7 +7,7 @@
 
 using namespace std;
 
-inline std::string getCurPath() {
+std::string getCurPath() {
 	wchar_t path[MAX_PATH] = { 0 };
 	GetModuleFileName(NULL, path, MAX_PATH);
 
@@ -18,7 +18,7 @@ inline std::string getCurPath() {
 	return str;
 }
 
-inline std::string getResourcePath() {
+std::string getResourcePath() {
 	string exePath = getCurPath();
 	// split string
 	istringstream iss(exePath);
@@ -36,7 +36,7 @@ inline std::string getResourcePath() {
 	return resourcePath;
 }
 
-inline std::string getSolutionPath() {
+std::string getSolutionPath() {
 	string exePath = getCurPath();
 	// split string
 	istringstream iss(exePath);

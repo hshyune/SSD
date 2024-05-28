@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "common.cpp"
+#include "common.h"
 #include <stdio.h>
 #include <iostream>
-#include <cstdlib> 
+#include <cstdlib>
 #include <stdexcept>
-#include <string> 
+#include <string>
 
 
 using namespace std;
