@@ -25,10 +25,21 @@ protected:
     }
 };
 
-TEST_F(CommandBufferTest, ReadTest) {
+TEST_F(CommandBufferTest, ReadTestIfWriteIsInBuffer) {
     cb->write(10, "data");
     string result = cb->read(10);
     EXPECT_EQ(result, "data");
+}
+
+
+TEST_F(CommandBufferTest, ReadTestIfEraseIsInBuffer) {
+    cb->write(10, "data1");
+    cb->write(10, "data2");
+    cb->write(11, "data3");
+    cb->erase(11, 2);
+    EXPECT_EQ(cb->read(10), "data2");
+    EXPECT_EQ(cb->read(11), "0x00000000");
+    EXPECT_EQ(cb->read(12), "0x00000000");
 }
 
 TEST_F(CommandBufferTest, WriteTest) {

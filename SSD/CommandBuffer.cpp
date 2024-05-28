@@ -4,6 +4,10 @@
 #include <iostream>
 #include <algorithm>
 
+inline bool isInRange(int target, int start, int end) {
+	return (start <= target && target < end) ? true : false;
+}
+
 CommandBuffer::CommandBuffer(IIoInterface* storage, const string& fileName) : fileName(fileName) {
 	this->storage = storage;
 }
@@ -13,17 +17,16 @@ string CommandBuffer::read(int address) {
 
 	auto commandBuffer = LoadFromFile();
 
-	for (const auto& command : commandBuffer) {
-		if (command.type == 'W' && command.address == address) {
-			return command.data;
+	for (auto iter = commandBuffer.rbegin(); iter != commandBuffer.rend(); iter++) {
+		if (iter->type == 'W' && iter->address == address) {
+			return iter->data;
+		}
+		else if (iter->type == 'E' && isInRange(address, iter->address, iter->address + stoi(iter->data))) {
+			return "0x00000000";
 		}
 	}
 
 	return storage->read(address);
-}
-
-bool isInRange(int target, int start, int end) {
-	return (start <= target && target < end) ? true : false;
 }
 
 void CommandBuffer::ignoreWriteAfterWrite(list<Command>& commandBuffer) {
