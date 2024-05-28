@@ -159,10 +159,10 @@ public:
 		fs.close();
 	}
 
-	void LogIterationDebugger(const char* str = __builtin_FUNCTION()) {
+	void LogIterationDebugger(const char* callerName = __builtin_FUNCTION()) {
 		if (logLevel == LOG_LEVEL::DEBUG) {
 			static int count = 0;
-			std::cout << "========================== [" << str << "] " << count++ << " Iteration \n";
+			std::cout << "========================== [" << callerName << "] " << count++ << " Iteration \n";
 			listLogOutputDirectory();
 			std::cout << "========================== \n";
 		}
