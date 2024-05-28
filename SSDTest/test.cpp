@@ -19,7 +19,8 @@ public:
 	SSD ssd{ &mock };
 };
 
-TEST_F(SSDTest, Read_LBA_Success) {
+
+TEST_F(SSDTest, Read_Success) {
 	int address = 1;
 	string expectedData = "0x12345678";
 	EXPECT_CALL(mock, read(address)).Times(1).WillRepeatedly(Return(expectedData));
@@ -27,7 +28,7 @@ TEST_F(SSDTest, Read_LBA_Success) {
 	EXPECT_EQ(ret, expectedData);
 }
 
-TEST_F(SSDTest, Read_LBA_OutOfBound) {
+TEST_F(SSDTest, Read_OutOfBound) {
 	int address = 200;
 	string expectedData = "";
 	EXPECT_CALL(mock, read(address)).Times(0);
@@ -75,4 +76,44 @@ TEST_F(SSDTest, Write_InvalidData2) {
 	string data = "0xzzzzzzzz";
 	EXPECT_CALL(mock, write(address, data)).Times(0);
 	ssd.write(address, data);
+}
+
+TEST_F(SSDTest, Erase_Success) {
+	int address = 10;
+	int size = 1;
+	EXPECT_CALL(mock, erase(address, size)).Times(1);
+	ssd.erase(address, size);
+}
+
+TEST_F(SSDTest, Erase_OutOfBound) {
+	int address = 200;
+	int size = 1;
+	EXPECT_CALL(mock, erase(address, size)).Times(0);
+	ssd.erase(address, size);
+}
+
+TEST_F(SSDTest, Erase_InvalidSize) {
+	int address = 10;
+	int size = 0;
+	EXPECT_CALL(mock, erase(address, size)).Times(0);
+	ssd.erase(address, size);
+}
+
+TEST_F(SSDTest, Erase_InvalidSize2) {
+	int address = 10;
+	int size = 100;
+	EXPECT_CALL(mock, erase(address, size)).Times(0);
+	ssd.erase(address, size);
+}
+
+TEST_F(SSDTest, Erase_InvalidSize3) {
+	int address = 10;
+	int size = -1;
+	EXPECT_CALL(mock, erase(address, size)).Times(0);
+	ssd.erase(address, size);
+}
+
+TEST_F(SSDTest, Flush_Success) {
+	EXPECT_CALL(mock, flush()).Times(1);
+	ssd.flush();
 }
