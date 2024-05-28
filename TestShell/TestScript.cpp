@@ -10,6 +10,7 @@
 using namespace std;
 
 const string PATH_TESTLIST_FILE = "run_list.lst";
+const string PATH_NAND = "nand.txt";
 const int SUCCESS = 0;
 const int FAIL = 1;
 const int ERROR_TEST_NOT_EXISTED = 2;
@@ -144,6 +145,22 @@ public:
 		}
 	}
 
+	string getDataFromFile(string filePath)
+	{
+		string result = "";
+		ifstream file(filePath);
+		if (file.is_open()) {
+			string line = "";
+			while (getline(file, line)) {
+				result += line;
+			}
+		}
+		else {
+			cout << "Cannot open this file : " << filePath << endl;
+		}
+		return result;
+	}
+
 	void runTestListUsingFile(string filePath)
 	{
 		LoggerSingleton::getInstance().print("Run all of tests in " + filePath + " using text file");
@@ -230,7 +247,13 @@ public:
 					}
 					testFile.close();
 					// pass / fail 판단
-					cout << "PASS" << endl;
+					string resultFileName = "expected_" + testName + ".txt";
+					string expectedData = getDataFromFile(resultFileName);
+					string resultData = getDataFromFile(PATH_NAND);
+					if (expectedData == resultData)
+						cout << "PASS" << endl;
+					else
+						cout << FAIL << endl;
 				}
 				else {
 					cout << "This test is not existed : " << testFileName << endl;
