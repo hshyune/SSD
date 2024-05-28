@@ -58,21 +58,11 @@ void CommandBuffer::optimizeBuffer(list<Command>& commandBuffer) {
 			else if (earlierCmd->type == 'E' && laterCmd->type == 'E') {
 				if ((earlierCmd->address <= laterCmd->address && laterCmd->address <= earlierCmd->address + stoi(earlierCmd->data)) ||
 					(laterCmd->address <= earlierCmd->address && earlierCmd->address <= laterCmd->address + stoi(laterCmd->data))) {
-					bool canMerge = true;
-					for (int curAddr = laterCmd->address; curAddr < laterCmd->address + stoi(laterCmd->data); curAddr++) {
-						if (any_of(commandBuffer.begin(), commandBuffer.end(), [curAddr](const Command& cmd) { return cmd.type == 'W' && cmd.address == curAddr; })) {
-							canMerge = false;
-							break;
-						}
-					}
-
-					if (canMerge) {
-						earlierCmd->address = min(earlierCmd->address, laterCmd->address);
-						earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
-						commandBuffer.erase(laterCmd);
-						optimizeBuffer(commandBuffer);
-						return;
-					}
+					earlierCmd->address = min(earlierCmd->address, laterCmd->address);
+					earlierCmd->data = to_string(max(earlierCmd->address + stoi(earlierCmd->data), laterCmd->address + stoi(laterCmd->data)) - earlierCmd->address);
+					commandBuffer.erase(laterCmd);
+					optimizeBuffer(commandBuffer);
+					return;
 				}
 			}
 		}
