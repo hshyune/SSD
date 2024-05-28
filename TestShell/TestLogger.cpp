@@ -92,6 +92,10 @@ public:
 	void makeZipLog() {
 		std::string logFile = getLogPath(latestBackupFile + ".log");
 		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
+		renameLogToZip(logFile, zipFile);
+	}
+
+	void renameLogToZip(std::string& logFile, std::string& zipFile) {
 		try {
 			int result = std::rename(logFile.c_str(), zipFile.c_str());
 			if (result != 0) {
@@ -108,7 +112,11 @@ public:
 		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
 		std::string baselogFile = getLogPath(logFile);
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
+		renameLatestLogToBackupLog(baselogFile, backuplogFile);
+		untilFileExist = true;
+	}
 
+	void renameLatestLogToBackupLog(std::string& baselogFile, std::string& backuplogFile) {
 		try {
 			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
 			if (result != 0) {
@@ -177,8 +185,7 @@ public:
 		}
 	}
 
-	void listLogOutputDirectory()
-	{
+	void listLogOutputDirectory() {
 		std::string findLogFile = git_ls + " " + logBase;
 		system(findLogFile.c_str());
 	}
