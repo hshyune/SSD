@@ -22,7 +22,10 @@ protected:
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
 	const string INVALID_SIZE = "INVALID SIZE";
+<<<<<<< HEAD
 	const string INVALID_ADDRESS_RANGE = "END ADDRESS GT START ADDRESS";
+=======
+>>>>>>> 05aafb3c780efa5f4ed090d686caf6854dffcdd7
 };
 
 class ReadCommand : public Command {
@@ -297,6 +300,7 @@ public:
 			// addr validation
 			// string to integer
 			int addr = stoi(args.at(1));
+
 			// range
 			if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
 			// string to integer
@@ -307,8 +311,8 @@ public:
 			cout << e.what() << endl;
 			return false;
 		}
-
 		// set address from args
+
 		this->addr = stoi(args.at(1));
 		this->size = stoi(args.at(2));
 		return true;
@@ -328,8 +332,7 @@ public:
 	}
 
 	// Command을(를) 통해 상속됨
-	void execute() override {
-		
+	void execute() override {		
 		while (true) {
 			int size = endAddr - startAddr;
 			if (size > 10) {
