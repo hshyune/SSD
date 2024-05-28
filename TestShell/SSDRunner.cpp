@@ -1,26 +1,29 @@
 ﻿#pragma once
+#include "common.cpp"
 #include <stdio.h>
 #include <iostream>
 #include <cstdlib> 
-#include <iostream>
 #include <stdexcept>
 #include <string> 
+
 
 using namespace std;
 
 class SSDRunner {
 public:
+	SSDRunner() {
+		this->ssdPath = getSolutionPath() + "x64\\debug\\SSD.exe";
+	}
+
 	string read(int address) {
 		string result = "";
-		//string cmd = this->SSDPath + " R " + to_string(address);
-		string cmd = "SSD.exe R " + to_string(address);
+		string cmd = ssdPath + " R " + to_string(address);
 		result = this->exec(cmd);
 		return result;
 	}
 
 	void write(int address, string data) {
-		//string cmd = this->SSDPath + " W " + to_string(address) + " " + data;
-		string cmd = "SSD.exe W " + to_string(address) + " " + data;
+		string cmd = ssdPath + " W " + to_string(address) + " " + data;
 		this->exec(cmd);
 	}
 
@@ -39,7 +42,7 @@ public:
 	}
 
 private:
-	string SSDPath = "../TestShell/SSD.exe";
+	string ssdPath = "";
 	const int MAX_LBA_SIZE = 100;
 
 	string exec(const string cmdstr) {

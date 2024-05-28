@@ -152,7 +152,8 @@ public:
 	void execute() override {
 		int lineCnt = 0;
 
-		ifstream file("help.txt");
+		string filePath = getResourcePath() + "\\help.txt";
+		ifstream file(filePath);
 		string line = "";
 		if (file.is_open()) {
 			while (getline(file, line)) {
