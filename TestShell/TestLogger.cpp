@@ -92,14 +92,14 @@ public:
 	void makeZipLog() {
 		std::string logFile = getLogPath(latestBackupFile + ".log");
 		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
-		renameLogToZip(logFile, zipFile);
+		renameSrcToDst(logFile, zipFile);
 	}
 
-	void renameLogToZip(std::string& logFile, std::string& zipFile) {
+	void renameSrcToDst(std::string& srcFile, std::string& dstFile) {
 		try {
-			int result = std::rename(logFile.c_str(), zipFile.c_str());
+			int result = std::rename(srcFile.c_str(), dstFile.c_str());
 			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + logFile + " -> " + zipFile);
+				throw std::runtime_error(std::string("[Rename Error] : ") + srcFile + " -> " + dstFile);
 			}
 		}
 		catch (const std::exception& ex) {
@@ -112,22 +112,7 @@ public:
 		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
 		std::string baselogFile = getLogPath(logFile);
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
-		renameLatestLogToBackupLog(baselogFile, backuplogFile);
-		untilFileExist = true;
-	}
-
-	void renameLatestLogToBackupLog(std::string& baselogFile, std::string& backuplogFile) {
-		try {
-			int result = std::rename(baselogFile.c_str(), backuplogFile.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Rename Error] : ") + baselogFile + " -> " + backuplogFile);
-			}
-		}
-		catch (const std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
-			exit(1);
-		}
-
+		renameSrcToDst(baselogFile, backuplogFile);
 		untilFileExist = true;
 	}
 
