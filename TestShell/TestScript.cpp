@@ -84,6 +84,9 @@ public:
 
 class TestScriptRunner {
 public:
+	TestScriptRunner() {
+		ssdRunner = new SSDRunner();
+	}
 	void setTestApp(const string& testName) {
 		LoggerSingleton::getInstance().print("Regist test '" + testName + "'");
 		if (testName == "testapp1") {
