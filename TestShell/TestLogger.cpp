@@ -17,27 +17,52 @@ enum class LOG_LEVEL {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-class LogManager {
+class LogEnv {
 public:
-	void manageLogFiles() {
-		auto logFileSize = filesize();
-		if (logFileSize >= logMaxSize) {
-			if (untilFileExist) {
-				makeZipLog();
-			}
-			makeBackupLog();
-		}
+	static const std::string& getLogBase() {
+		return logBase;
+	}
+
+	void setLoglevel(LOG_LEVEL logLevel) {
+		this->logLevel = logLevel;
+	}
+
+	LOG_LEVEL getLogLevel() {
+		return logLevel;
+	}
+
+	const std::string& getLogFile() {
+		return logFile;
+	}
+
+private:
+	const static std::string logBase;
+	const std::string logFile{ "latest.log" };
+	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
+};
+
+const std::string LogEnv::logBase{ "../log" };
+
+/////////////////////////////////////////////////////////////////////////////////
+
+class LogUtils : public LogEnv {
+public:
+	std::string getCurrentTime(const std::string& timeFormat) {
+		time_t rawtime;
+		time(&rawtime);
+		struct tm* timeinfo = localtime(&rawtime);
+		char buffer[80]{};
+		strftime(buffer, 80, timeFormat.c_str(), timeinfo);
+		return std::string(buffer);
+	}
+
+	std::string getLogPath(const std::string& logFileName) {
+		return getLogBase() + "/" + logFileName;
 	}
 
 	std::ifstream::pos_type filesize() {
-		std::ifstream in(getLogPath(logFile).c_str(), std::ifstream::ate | std::ifstream::binary);
+		std::ifstream in(getLogPath(getLogFile()).c_str(), std::ifstream::ate | std::ifstream::binary);
 		return in.tellg();
-	}
-
-	void makeZipLog() {
-		std::string logFile = getLogPath(latestBackupFile + ".log");
-		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
-		renameSrcToDst(logFile, zipFile);
 	}
 
 	void renameSrcToDst(std::string& srcFile, std::string& dstFile) {
@@ -52,33 +77,39 @@ public:
 			exit(1);
 		}
 	}
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+
+class LogManager : public LogUtils {
+public:
+	void manageLogFiles() {
+		auto logFileSize = filesize();
+		if (logFileSize >= logMaxSize) {
+			if (untilFileExist) {
+				makeZipLog();
+			}
+			makeBackupLog();
+		}
+	}
+
+	void makeZipLog() {
+		std::string logFile = getLogPath(latestBackupFile + ".log");
+		std::string zipFile = getLogPath(latestBackupFile) + ".zip";
+		renameSrcToDst(logFile, zipFile);
+	}
 
 	void makeBackupLog() {
 		latestBackupFile = std::string("until_") + getCurrentTime("%g%m%d_%Hh_%Mm_%Ss");
-		std::string baselogFile = getLogPath(logFile);
+		std::string baselogFile = getLogPath(getLogFile());
 		std::string backuplogFile = getLogPath(latestBackupFile + ".log");
 		renameSrcToDst(baselogFile, backuplogFile);
 		untilFileExist = true;
 	}
 
-	std::string getCurrentTime(const std::string& timeFormat) {
-		time_t rawtime;
-		time(&rawtime);
-		struct tm* timeinfo = localtime(&rawtime);
-		char buffer[80]{};
-		strftime(buffer, 80, timeFormat.c_str(), timeinfo);
-		return std::string(buffer);
-	}
-
-	std::string getLogPath(const std::string& logFileName) {
-		return logBase + "/" + logFileName;
-	}
-
 private:
 	bool untilFileExist{ false };
 	const int logMaxSize{ 1024 * 10 };
-	std::string logBase{ "../log" };
-	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
 };
 
@@ -100,9 +131,8 @@ public:
 
 	static std::string makeStringExtensionLists(const std::vector<std::string>& cleanExtensionLists) {
 		std::string cleanExtLists;
-		std::string logBase{ "../log" };
 		for (const std::string& cleanExtension : cleanExtensionLists) {
-			cleanExtLists += logBase + "/*." + cleanExtension + " ";
+			cleanExtLists += LogEnv::getLogBase() + "/*." + cleanExtension + " ";
 		}
 		return cleanExtLists;
 	}
@@ -115,17 +145,14 @@ public:
 			throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
 		}
 	}
-
-private:
-	std::string logBase{ "../log" };
 };
 
 /////////////////////////////////////////////////////////////////////////////////
 
-class LogDebugger {
+class LogDebugger : public LogEnv {
 public:
 	void debugListLogFile(const char* callerName = __builtin_FUNCTION()) {
-		if (logLevel == LOG_LEVEL::DEBUG) {
+		if (getLogLevel() == LOG_LEVEL::DEBUG) {
 			static int count = 0;
 			std::cout << "========================== [" << callerName << "] " << count++ << " Iteration \n";
 			listLogOutputDirectory();
@@ -135,23 +162,17 @@ public:
 
 	void listLogOutputDirectory()
 	{
-		std::string findLogFile = git_ls + " " + logBase;
+		std::string findLogFile = git_ls + " " + getLogBase();
 		system(findLogFile.c_str());
 	}
 
-	void setLoglevel(LOG_LEVEL logLevel) {
-		this->logLevel = logLevel;
-	}
-
 private:
-	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
-	std::string logBase{ "../log" };
 	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
 };
 
 /////////////////////////////////////////////////////////////////////////////////
 
-class LoggerSingleton {
+class LoggerSingleton : public LogEnv {
 public:
 	static LoggerSingleton& getInstance(LOG_LEVEL logLevel = LOG_LEVEL::INFO, bool cleanLog = false) {
 		static LoggerSingleton instance{};
@@ -165,13 +186,8 @@ private:
 	LoggerSingleton(const LoggerSingleton& other) = delete;
 
 public:
-	void setLoglevel(LOG_LEVEL logLevel) {
-		this->logLevel = logLevel;
-		this->debugger.setLoglevel(logLevel);
-	}
-
 	void print(std::string logMessage, const char* callerName = __builtin_FUNCTION()) {
-		if (logLevel == LOG_LEVEL::NO)
+		if (getLogLevel() == LOG_LEVEL::NO)
 			return;
 		manager.manageLogFiles();
 
@@ -183,7 +199,7 @@ public:
 	}
 
 	std::string getLogPath(const std::string& logFileName) {
-		return logBase + "/" + logFileName;
+		return getLogBase() + "/" + logFileName;
 	}
 
 	std::string getCurrentTime(const std::string& timeFormat) {
@@ -220,17 +236,12 @@ public:
 	}
 
 	void printFile(const std::string& logOutput) {
-		std::fstream fs(getLogPath(logFile), std::fstream::out | std::fstream::app);
+		std::fstream fs(getLogPath(getLogFile()), std::fstream::out | std::fstream::app);
 		fs << logOutput << std::endl;
 		fs.close();
 	}
 
 private:
-	std::string logBase{ "../log" };
-	std::string logFile{ "latest.log" };
-
-	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
-	bool cleanLog{ true };
 	LogManager manager;
 	LogCleaner cleaner;
 	LogDebugger debugger;
