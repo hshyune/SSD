@@ -24,8 +24,7 @@ public:
 		return instance;
 	}
 private:
-	LoggerSingleton() {
-	}
+	LoggerSingleton() {}
 	LoggerSingleton& operator=(const LoggerSingleton& other) = delete;
 	LoggerSingleton(const LoggerSingleton& other) = delete;
 public:
@@ -37,22 +36,30 @@ public:
 		if (cleanLog == false)
 			return;
 		try {
-			std::string logBase{ "../log" };
-			std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
-
-			std::string cleanExt;
-			for (const std::string& cleanExtension : cleanExtensionLists) {
-				cleanExt += logBase + "/*." + cleanExtension + " ";
-			}
-			std::string cleanCommand = git_rm + " -f " + cleanExt;
-			int result = std::system(cleanCommand.c_str());
-			if (result != 0) {
-				throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
-			}
+			std::string cleanExt = makeStringExtensionLists(cleanExtensionLists);
+			removeExtension(cleanExt);
 		}
 		catch (const std::exception& ex) {
 			std::cerr << ex.what() << std::endl;
 			exit(1);
+		}
+	}
+
+	static std::string makeStringExtensionLists(const std::vector<std::string>& cleanExtensionLists) {
+		std::string cleanExtLists;
+		std::string logBase{ "../log" };
+		for (const std::string& cleanExtension : cleanExtensionLists) {
+			cleanExtLists += logBase + "/*." + cleanExtension + " ";
+		}
+		return cleanExtLists;
+	}
+
+	static void removeExtension(const std::string& clean_ExtLists) {
+		std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
+		std::string cleanCommand = git_rm + " -f " + clean_ExtLists;
+		int result = std::system(cleanCommand.c_str());
+		if (result != 0) {
+			throw std::runtime_error(std::string("[Clean Error] : ") + cleanCommand);
 		}
 	}
 
@@ -178,7 +185,6 @@ private:
 	std::string logBase{ "../log" };
 	std::string logFile{ "latest.log" };
 	std::string latestBackupFile;
-	std::string git_rm{ "\"C:/Program Files/Git/usr/bin/rm.exe\"" };
 	std::string git_ls{ "\"C:/Program Files/Git/usr/bin/ls.exe\"" };
 	LOG_LEVEL logLevel{ LOG_LEVEL::INFO };
 };
