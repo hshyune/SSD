@@ -1,8 +1,7 @@
-
-﻿//#include "gtest/gtest.h"
-//#include "gmock/gmock.h"
-//#include "../TestShell/TestShell.cpp"
-//#include <stdexcept>
+﻿#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "../TestShell/TestShell.cpp"
+#include <stdexcept>
 //
 //using namespace std;
 //using namespace testing;
@@ -95,4 +94,3 @@
 //
 //	mock.fullread();
 //}
-
