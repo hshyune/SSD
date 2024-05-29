@@ -206,7 +206,37 @@ public:
 		}
 	}
 
-	void runCommand(Command* command, std::vector<std::string>& args)
+	Command* setCmd(std::string& cmd)
+	{
+		Command* command;
+		if (cmd == "read") {
+			command = new ReadCommand(this->ssdRunner);
+		}
+		else if (cmd == "write") {
+			command = new WriteCommand(this->ssdRunner);
+		}
+		else if (cmd == "fullwrite") {
+			command = new FullwriteCommand(this->ssdRunner);
+		}
+		else if (cmd == "fullread") {
+			command = new FullreadCommand(this->ssdRunner);
+		}
+		else if (cmd == "erase") {
+			command = new EraseCommand(this->ssdRunner);
+		}
+		else if (cmd == "erase_range") {
+			command = new EraseRangeCommand(this->ssdRunner);
+		}
+		else if (cmd == "flush") {
+			command = new FlushCommand(this->ssdRunner);
+		}
+		else {
+			command = new InvalidCommand();
+		}
+		return command;
+	}
+
+	void runCmd(Command* command, std::vector<std::string>& args)
 	{
 		commandContoller.setCommand(command);
 		if (commandContoller.validate(args))
@@ -238,32 +268,8 @@ public:
 
 						// validation & execution
 						string cmd = args.at(0);
-						Command* command;
-						if (cmd == "read") {
-							command = new ReadCommand(this->ssdRunner);
-						}
-						else if (cmd == "write") {
-							command = new WriteCommand(this->ssdRunner);
-						}
-						else if (cmd == "fullwrite") {
-							command = new FullwriteCommand(this->ssdRunner);
-						}
-						else if (cmd == "fullread") {
-							command = new FullreadCommand(this->ssdRunner);
-						}
-						else if (cmd == "erase") {
-							command = new EraseCommand(this->ssdRunner);
-						}
-						else if (cmd == "erase_range") {
-							command = new EraseRangeCommand(this->ssdRunner);
-						}
-						else if (cmd == "flush") {
-							command = new FlushCommand(this->ssdRunner);
-						}
-						else {
-							command = new InvalidCommand();
-						}
-						runCommand(command, args);
+						Command* command = setCmd(cmd);
+						runCmd(command, args);
 					}
 					testFile.close();
 					// pass / fail 판단
