@@ -384,6 +384,34 @@ private:
 	int endAddr;
 };
 
+class FlushCommand : public Command {
+public:
+	FlushCommand(SSDRunner* ssdRunner) {
+		this->ssd = ssdRunner;
+	}
+
+	// Command을(를) 통해 상속됨
+	void execute() override {
+		this->ssd->flush();
+	}
+
+	bool validate(vector<string> args) override {
+		// flush
+		try {
+			// format
+			if (args.size() != 1) throw runtime_error(this->INVALID_PARAMETER);
+		}
+		catch (exception e) {
+			cout << e.what() << endl;
+			return false;
+		}
+		return true;
+	}
+private:
+	SSDRunner* ssd;
+	string data;
+};
+
 // invoker
 class CommandContoller {
 public:
