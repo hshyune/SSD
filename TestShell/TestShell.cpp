@@ -5,7 +5,6 @@
 #include <vector>
 #include <sstream>
 #include "SSDRunner.cpp"
-#include "TestLogger.h"
 #include "Command.cpp"
 
 using namespace std;
@@ -98,7 +97,6 @@ public:
 
 private:
 	bool isRunning = true;
-	LoggerSingleton& logger{ LoggerSingleton::getInstance() };
 
 	CommandContoller commandContoller;
 	SSDRunner* ssdRunner;
