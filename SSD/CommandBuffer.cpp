@@ -58,7 +58,12 @@ void CommandBuffer::mergeErase(list<Command>& commandBuffer) {
 	for (auto iter = commandBuffer.begin(); iter != std::prev(commandBuffer.end()); ) {
 		if (iter->type == 'E' && ((iter->address <= lastCmd->address && lastCmd->address <= iter->address + stoi(iter->data)) ||
 			(lastCmd->address <= iter->address && iter->address <= lastCmd->address + stoi(lastCmd->data)))) {
-			lastCmd->data = to_string(max(iter->address + stoi(iter->data), lastCmd->address + stoi(lastCmd->data)) - iter->address);
+			auto mergedSize = max(iter->address + stoi(iter->data), lastCmd->address + stoi(lastCmd->data)) - iter->address;
+			if (mergedSize > 10) {
+				iter++;
+				continue;
+			}
+			lastCmd->data = to_string(mergedSize);
 			lastCmd->address = min(iter->address, lastCmd->address);
 			iter = commandBuffer.erase(iter);
 		}
