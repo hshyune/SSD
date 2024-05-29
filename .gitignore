@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # log path
 log/
+
+# coverage path
+coverage/
