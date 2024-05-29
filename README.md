@@ -19,3 +19,22 @@ Visual Studio 환경에서 Solution 파일을 열어 빌드를 수행합니다. 
 - 첫 번째 인자: 수행할 작업을 지정합니다. "W"는 WRITE, "R"는 READ, "E"는 ERASE, "F"는 FLUSH를 의미합니다.
 - 두 번째 인자: 작업을 수행할 주소를 지정합니다. READ, WRITE, ERASE 작업에 사용됩니다.
 - 세 번째 인자: WRITE 작업의 경우 쓸 데이터를, ERASE 작업의 경우 지울 데이터의 크기를 지정합니다.
+
+## 사용 예시
+다음은 명령행 인자를 사용하는 예시입니다:
+### WRITE: 
+```bash
+SSD W 3 0x22231F19 - 주소 3에 데이터 0x22231F19를 씁니다.
+```
+### READ: 
+```bash
+SSD R 3 - 주소 3에서 데이터를 읽습니다.
+```
+### ERASE:
+```bash
+SSD E 3 5 - 주소 3부터 5개의 데이터를 지웁니다.
+```
+### FLUSH:
+```bash
+SSD F - SSD의 버퍼를 강제로 Flush하여 Persistent Memory에 데이터를 기록합니다.
+```
