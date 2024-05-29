@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include "SSDRunner.cpp"
+#include "TestLogger.h"
 
 using namespace std;
 
@@ -29,6 +30,8 @@ protected:
 	const int MAX_LBA_ADDR = 99;
 	const int MIN_LBA_ADDR = 0;
 	const int MAX_ERASE_SIZE = 10;
+
+	string commandName;
 };
 
 class ReadCommand : public Command {
@@ -36,16 +39,18 @@ public:
 	ReadCommand(SSDRunner* ssdRunner) {
 		this->ssd = ssdRunner;
 		this->addr = -1;
+		this->commandName = "READ";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-		cout << this->ssd->read(this->addr) << endl;
-
+		string result = this->ssd->read(this->addr);
+		LoggerSingleton::getInstance().print(this->commandName + "addr: " + to_string(addr) + " / " + result);
 	}
 
 	bool validate(vector<string> args) override {
 		// read [addr]
+		LoggerSingleton::getInstance().print(this->commandName);
 		try {
 			// format
 			if (args.size() != 2)	throw runtime_error(this->INVALID_PARAMETER);
@@ -77,14 +82,17 @@ public:
 		this->ssd = ssdRunner;
 		this->addr = -1;
 		this->data = "";
+		this->commandName = "WRITE";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
 		this->ssd->write(this->addr, this->data);
+		LoggerSingleton::getInstance().print(this->commandName + "addr: " + to_string(addr) + " / data" + data);
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// write [addr] [data]
 		try {
 			// format
@@ -128,15 +136,17 @@ private:
 class ExitCommand : public Command {
 public:
 	ExitCommand() {
-
+		this->commandName = "EXIT";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
+		LoggerSingleton::getInstance().print(this->commandName);
 	}
 
 	bool validate(vector<string> args) override {
 		// exit
+		LoggerSingleton::getInstance().print(this->commandName);
 		try {
 			// format
 			if (args.size() != 1) throw runtime_error(this->INVALID_PARAMETER);
@@ -153,11 +163,12 @@ public:
 class HelpCommand : public Command {
 public:
 	HelpCommand() {
-
+		this->commandName = "HELP";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		int lineCnt = 0;
 
 		string filePath = "..\\..\\resources\\help.txt";
@@ -177,6 +188,7 @@ public:
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// help
 		try {
 			// format
@@ -196,14 +208,17 @@ public:
 	FullwriteCommand(SSDRunner* ssdRunner) {
 		this->ssd = ssdRunner;
 		this->data = "";
+		this->commandName = "FULLWRITE";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
+		LoggerSingleton::getInstance().print(this->commandName + "data: " + data);
 		this->ssd->fullwrite(this->data);
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// fullwrite [data]
 		try {
 			// format
@@ -239,14 +254,17 @@ class FullreadCommand : public Command {
 public:
 	FullreadCommand(SSDRunner* ssdRunner) {
 		this->ssd = ssdRunner;
+		this->commandName = "FULLREAD";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		cout << this->ssd->fullread() << endl;
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// fullwrite [data]
 		try {
 			// format
@@ -267,15 +285,17 @@ private:
 class InvalidCommand : public Command {
 public:
 	InvalidCommand() {
-
+		this->commandName = "INVALID COMMAND";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
 		cout << this->INVALID_COMMAND << endl;
+		LoggerSingleton::getInstance().print(this->commandName);
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		return true;
 	}
 };
@@ -286,15 +306,17 @@ public:
 		this->ssdRunner = ssd;
 		this->addr = -1;
 		this->size = -1;
+		this->commandName = "ERASE";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
-		cout << "erase " << to_string(addr) << " " << to_string(size) << endl;
 		this->ssdRunner->erase(this->addr, this->size);
+		LoggerSingleton::getInstance().print(this->commandName + "addr: " + to_string(addr) + " / size: " + to_string(size));
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// erase [addr] [size]
 		try {
 			// format
@@ -332,10 +354,12 @@ public:
 		this->ssdRunner = ssd;
 		this->startAddr = -1;
 		this->endAddr = -1;
+		this->commandName = "ERASE_RANGE";
 	}
 
 	// Command을(를) 통해 상속됨
-	void execute() override {		
+	void execute() override {
+		LoggerSingleton::getInstance().print(this->commandName + "start Addr: " + to_string(startAddr) + " / end Addr: " + to_string(endAddr));
 		while (true) {
 			int size = endAddr - startAddr;
 			if (size > MAX_ERASE_SIZE) {
@@ -348,13 +372,12 @@ public:
 				this->ssdRunner->erase(this->startAddr, size);
 				break;
 			}
-			
+
 		}
-
-
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// erase [startAddr] [endAddr]
 		try {
 			// format
@@ -394,14 +417,17 @@ class FlushCommand : public Command {
 public:
 	FlushCommand(SSDRunner* ssdRunner) {
 		this->ssd = ssdRunner;
+		this->commandName = "FLUSH";
 	}
 
 	// Command을(를) 통해 상속됨
 	void execute() override {
 		this->ssd->flush();
+		LoggerSingleton::getInstance().print(this->commandName);
 	}
 
 	bool validate(vector<string> args) override {
+		LoggerSingleton::getInstance().print(this->commandName);
 		// flush
 		try {
 			// format
