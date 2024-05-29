@@ -50,6 +50,11 @@ public:
 		this->erase(startAddr, size);
 	}
 
+	void flush() {
+		string cmd = ssdPath + " F";
+		this->exec(cmd);
+	}
+
 private:
 	string ssdPath = "";
 	const int MAX_LBA_SIZE = 100;
