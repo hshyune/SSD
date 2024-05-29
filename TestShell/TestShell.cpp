@@ -73,6 +73,19 @@ public:
 			else if (cmd == "flush") {
 				command = new FlushCommand(this->ssdRunner);
 			}
+			else if (cmd == "exit") {
+				command = new ExitCommand();
+				commandContoller.setCommand(command);
+				if (commandContoller.validate(args)){
+					this->isRunning = false;
+
+					// flush and exit
+					command = new FlushCommand(this->ssdRunner);
+					commandContoller.setCommand(command);
+					commandContoller.execute();
+					continue;
+				}
+			}
 			else {
 				command = new InvalidCommand();
 			}
