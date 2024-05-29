@@ -24,15 +24,22 @@ enum TEST_RESULT {
 
 class ITestApp {
 public:
+	ITestApp() {
+		ssdRunner = new SSDRunner();
+	}
 	virtual int runTest() = 0;
+	CommandContoller commandContoller;
+	SSDRunner* ssdRunner;
 };
 
 class TestApp1 : public ITestApp {
 public:
 	int runTest() override
 	{
-		// 먼저fullwrite를 수행한다.
-		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
+		// fullwrite
+		ssdRunner->fullwrite("0x12345678");
+		// fullread
+		ssdRunner->fullread();
 		return TEST_RESULT::PASS;
 	}
 };
@@ -41,9 +48,15 @@ class TestApp2 : public ITestApp {
 public:
 	int runTest() override
 	{
-		// 0~5 번 LBA 에 0xAAAABBBB 값으로 총 30번 Write를 수행한다.
-		// 0~5 번 LBA 에 0x12345678 값으로 1 회 Over Write를 수행한다.
-		// 0~5 번 LBA Read 했을 때 정상적으로 값이 읽히는지 확인한다.
+		// 0~5 번 LBA 에 0xAAAABBBB write
+		for (int lba = 0; lba <= 5; ++lba)
+			ssdRunner->write(lba, "0xAAAABBBB");
+		// 0~5 번 LBA 에 0x12345678 write
+		for (int lba = 0; lba <= 5; ++lba)
+			ssdRunner->write(lba, "0x12345678");
+		// 0~5 번 LBA Read 
+		for (int lba = 0; lba <= 5; ++lba)
+			ssdRunner->read(lba);
 		return TEST_RESULT::PASS;
 	}
 };
@@ -52,8 +65,10 @@ class FullWriteReadCompare : public ITestApp {
 public:
 	int runTest() override
 	{
-		// fullwrite를 수행
-		// fullread를 하면서, write 한 값대로 read가 되는지 확인한다.
+		// fullwrite
+		ssdRunner->fullwrite("0xCAFECAFE");
+		// fullread
+		ssdRunner->fullread();
 		return TEST_RESULT::PASS;
 	}
 };
@@ -63,6 +78,8 @@ public:
 	int runTest() override
 	{
 		// fullread를 10회
+		for (int cnt = 0; cnt < 10; ++cnt)
+			ssdRunner->fullread();
 		return TEST_RESULT::PASS;
 	}
 };
@@ -72,6 +89,8 @@ public:
 	int runTest() override
 	{
 		// full write 10회
+		for (int cnt = 0; cnt < 10; ++cnt)
+			ssdRunner->fullwrite("0xCAFECAFE");
 		return TEST_RESULT::PASS;
 	}
 };
@@ -81,6 +100,10 @@ public:
 	int runTest() override
 	{
 		// write하고 read를 각 1회씩 반복테스트
+		for (int cnt = 0; cnt < 10; ++cnt) {
+			ssdRunner->write(0, "0x12345678");
+			ssdRunner->read(0);
+		}
 		return TEST_RESULT::FAIL;
 	}
 };
@@ -267,9 +290,8 @@ public:
 						if (args.size() == 0) continue;
 
 						// validation & execution
-						string cmd = args.at(0);
-						Command* command = setCmd(cmd);
-						runCmd(command, args);
+						string cmd = args.at(0); \
+							runCmd(setCmd(cmd), args);
 					}
 					testFile.close();
 					// pass / fail 판단
