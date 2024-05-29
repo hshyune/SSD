@@ -33,127 +33,54 @@ public:
 		return args;
 	}
 
+	void runCommand(Command* command, std::vector<std::string>& args)
+	{
+		commandContoller.setCommand(command);
+		if (commandContoller.validate(args))
+			commandContoller.execute();
+	}
+
 	void run() {
 		// run
 		while (this->isRunning) {
 			//// input command
 			vector<string> args = this->getInput();
-			
+
 			// empty input
 			if (args.size() == 0) continue;
 
 			// validation & execution
 			string cmd = args.at(0);
+			Command* command;
 			if (cmd == "read") {
-				ReadCommand* command = new ReadCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new ReadCommand(this->ssdRunner);
 			}
 			else if (cmd == "write") {
-				WriteCommand* command = new WriteCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
-			}
-			else if (cmd == "exit") {
-				ExitCommand* command = new ExitCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-					this->isRunning = false;
-				}
-				continue;
-			}
-			else if (cmd == "help") {
-				HelpCommand* command = new HelpCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new WriteCommand(this->ssdRunner);
 			}
 			else if (cmd == "fullwrite") {
-				FullwriteCommand* command = new FullwriteCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new FullwriteCommand(this->ssdRunner);
 			}
 			else if (cmd == "fullread") {
-				FullreadCommand* command = new FullreadCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new FullreadCommand(this->ssdRunner);
 			}
 			else if (cmd == "erase") {
-				EraseCommand* command = new EraseCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new EraseCommand(this->ssdRunner);
 			}
 			else if (cmd == "erase_range") {
-				EraseRangeCommand* command = new EraseRangeCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new EraseRangeCommand(this->ssdRunner);
+			}
+			else if (cmd == "flush") {
+				command = new FlushCommand(this->ssdRunner);
 			}
 			else {
-				InvalidCommand* command = new InvalidCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				continue;
+				command = new InvalidCommand();
 			}
+			runCommand(command, args);
 		}
 	}
 
 private:
-	SSDRunner ssd;
 	bool isRunning = true;
 	LoggerSingleton& logger{ LoggerSingleton::getInstance() };
 
