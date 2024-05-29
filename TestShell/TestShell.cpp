@@ -7,12 +7,8 @@
 #include "SSDRunner.cpp"
 #include "TestLogger.h"
 #include "Command.cpp"
-using namespace std;
 
-const string INVALID_PARAMETER = "INVALID PARAMETER";
-const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
-const string INVALID_DATA = "INVALID_DATA";
-const string INVALID_COMMAND = "INVALID COMMAND";
+using namespace std;
 
 class TestShell {
 public:
@@ -21,77 +17,28 @@ public:
 	}
 	~TestShell() {
 	}
-	void write(int address, string data) {
-		ssd.write(address, data);
-		this->logger.print("LBA: " + to_string(address) + " / DATA: " + data);
-	}
 
-	string read(int address) {
-		string data = ssd.read(address);
-		this->logger.print("LBA: " + to_string(address) + " / DATA: " + data);
-		return data;
-	}
+	vector<string> getInput() {
+		string input = "";
+		cout << "input : ";
+		getline(cin, input);
 
-	void exit() {
-		this->logger.print("EXIT");
-		this->isRunning = false;
-	}
-
-	int help() {
-		int lineCnt = 0;
-
-		ifstream file("help.txt");
-		string line = "";
-		if (file.is_open()) {
-			while (getline(file, line)) {
-				cout << line << endl;
-				lineCnt += 1;
-			}
-			file.close();
+		// split string
+		vector<string> args;
+		istringstream iss(input);
+		string tmp;
+		while (getline(iss, tmp, ' ')) {
+			args.push_back(tmp);
 		}
-		else {
-			cerr << "Unable to open help.txt!" << endl;
-		}
-		this->logger.print("HELP");
-		return lineCnt;
-	}
-
-	void fullwrite(string data) {
-		const int LBA_SIZE = 100;
-		this->logger.print("LBA: ALL / DATA: " + data);
-		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
-			this->write(address, data);
-		}
-		this->logger.print("DONE");
-	}
-
-	void fullread() {
-		const int LBA_SIZE = 100;
-		this->logger.print("LBA: ALL");
-		string readData = "";
-		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
-			readData += to_string(address) + "," + this->read(address);
-		}
-		cout << readData << endl;
-		this->logger.print("DONE");
+		return args;
 	}
 
 	void run() {
 		// run
 		while (this->isRunning) {
-			// input command
-			string input = "";
-			cout << "input : ";
-			getline(cin, input);
-
-			// validation
-			// split string
-			istringstream iss(input);
-			string tmp;
-			vector<string> args;
-			while (getline(iss, tmp, ' ')) {
-				args.push_back(tmp);
-			}
+			//// input command
+			vector<string> args = this->getInput();
+			
 			// empty input
 			if (args.size() == 0) continue;
 
