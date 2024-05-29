@@ -130,6 +130,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>"C:\Program Files\Git\usr\bin\cp.exe" $(TargetDir)SSD.exe .</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="run_list.lst" />
