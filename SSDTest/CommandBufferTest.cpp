@@ -146,6 +146,14 @@ TEST_F(CommandBufferTest, OptimizeBufferTest_EraseMerge) {
     EXPECT_EQ(result4, "0x00000000");
 }
 
+TEST_F(CommandBufferTest, OptimizeBufferTest_EraseMerge_SizeOver10) {
+    cb->erase(10, 5);
+    cb->erase(15, 5);
+    EXPECT_EQ(cb->getBufferSize(), 1);
+
+    cb->erase(20, 5);
+    EXPECT_EQ(cb->getBufferSize(), 2);
+}
 
 TEST_F(CommandBufferTest, OptimizeBufferTest_Scenario1) {
     cb->write(20, "data1");
