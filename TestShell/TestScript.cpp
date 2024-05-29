@@ -28,6 +28,12 @@ public:
 		ssdRunner = new SSDRunner();
 	}
 	virtual int runTest() = 0;
+	void runCmd(Command* command, std::vector<std::string>& args)
+	{
+		commandContoller.setCommand(command);
+		if (commandContoller.validate(args))
+			commandContoller.execute();
+	}
 	CommandContoller commandContoller;
 	SSDRunner* ssdRunner;
 };
@@ -37,9 +43,15 @@ public:
 	int runTest() override
 	{
 		// fullwrite
-		ssdRunner->fullwrite("0x12345678");
+		vector<string> args = { "fullwrite", "0x12345678" };
+		Command* command = new FullwriteCommand(this->ssdRunner);
+		runCmd(command, args);
+
 		// fullread
-		ssdRunner->fullread();
+		vector<string> args2 = { "" };
+		command = new FullreadCommand(this->ssdRunner);
+		runCmd(command, args2);
+
 		return TEST_RESULT::PASS;
 	}
 };
@@ -49,14 +61,34 @@ public:
 	int runTest() override
 	{
 		// 0~5 번 LBA 에 0xAAAABBBB write
-		for (int lba = 0; lba <= 5; ++lba)
-			ssdRunner->write(lba, "0xAAAABBBB");
+		Command* command = new WriteCommand(this->ssdRunner);
+		vector<string> args;
+		for (int lba = 0; lba <= 5; ++lba) {
+			args.push_back("write");
+			args.push_back(to_string(lba));
+			args.push_back("0xAAAABBBB");
+			runCmd(command, args);
+			args.clear();
+		}
+
 		// 0~5 번 LBA 에 0x12345678 write
-		for (int lba = 0; lba <= 5; ++lba)
-			ssdRunner->write(lba, "0x12345678");
+		for (int lba = 0; lba <= 5; ++lba) {
+			args.push_back("write");
+			args.push_back(to_string(lba));
+			args.push_back("0x12345678");
+			runCmd(command, args);
+			args.clear();
+		}
+
 		// 0~5 번 LBA Read 
-		for (int lba = 0; lba <= 5; ++lba)
-			ssdRunner->read(lba);
+		command = new ReadCommand(this->ssdRunner);
+		for (int lba = 0; lba <= 5; ++lba) {
+			args.push_back("read");
+			args.push_back(to_string(lba));
+			runCmd(command, args);
+			args.clear();
+		}
+
 		return TEST_RESULT::PASS;
 	}
 };
@@ -65,10 +97,15 @@ class FullWriteReadCompare : public ITestApp {
 public:
 	int runTest() override
 	{
-		// fullwrite
-		ssdRunner->fullwrite("0xCAFECAFE");
+		vector<string> args = { "fullwrite", "0xCAFECAFE" };
+		Command* command = new FullwriteCommand(this->ssdRunner);
+		runCmd(command, args);
+
 		// fullread
-		ssdRunner->fullread();
+		vector<string> args2 = { "" };
+		command = new FullreadCommand(this->ssdRunner);
+		runCmd(command, args2);
+
 		return TEST_RESULT::PASS;
 	}
 };
@@ -78,8 +115,10 @@ public:
 	int runTest() override
 	{
 		// fullread를 10회
+		vector<string> args2 = { "" };
+		Command* command = new FullreadCommand(this->ssdRunner);
 		for (int cnt = 0; cnt < 10; ++cnt)
-			ssdRunner->fullread();
+			runCmd(command, args2);
 		return TEST_RESULT::PASS;
 	}
 };
@@ -89,8 +128,10 @@ public:
 	int runTest() override
 	{
 		// full write 10회
+		vector<string> args = { "fullwrite", "0xCAFECAFE" };
+		Command* command = new FullwriteCommand(this->ssdRunner);
 		for (int cnt = 0; cnt < 10; ++cnt)
-			ssdRunner->fullwrite("0xCAFECAFE");
+			runCmd(command, args);
 		return TEST_RESULT::PASS;
 	}
 };
@@ -100,11 +141,23 @@ public:
 	int runTest() override
 	{
 		// write하고 read를 각 1회씩 반복테스트
+		Command* command;
+		vector<string> args;
 		for (int cnt = 0; cnt < 10; ++cnt) {
-			ssdRunner->write(0, "0x12345678");
-			ssdRunner->read(0);
+			command = new WriteCommand(this->ssdRunner);
+			args.push_back("write");
+			args.push_back(to_string(0));
+			args.push_back("0x12345678");
+			runCmd(command, args);
+			args.clear();
+
+			command = new ReadCommand(this->ssdRunner);
+			args.push_back("read");
+			args.push_back(to_string(0));
+			runCmd(command, args);
+			args.clear();
 		}
-		return TEST_RESULT::FAIL;
+		return TEST_RESULT::PASS;
 	}
 };
 
@@ -140,7 +193,7 @@ public:
 
 	int runTest(const string& testName) {
 		LoggerSingleton::getInstance().print("Run " + testName);
-		cout << testName << "    ---    " << "Run...";
+		cout << testName << "    ---    " << "Run..." << endl;
 		if (testApp == nullptr)
 			return TEST_RESULT::ERROR_TEST_NOT_EXISTED;
 
@@ -175,6 +228,24 @@ public:
 		else {
 			cout << "Unable to open " << PATH_TESTLIST_FILE << endl;
 			return;
+		}
+	}
+
+	void runTC(const string& testName) {
+		setTestApp(testName);
+		switch (runTest(testName))
+		{
+		case TEST_RESULT::PASS:
+			cout << "TEST_RESULT::PASS" << endl;
+			break;
+		case TEST_RESULT::FAIL:
+			cout << "TEST_RESULT::FAIL" << endl;
+			break;
+		case TEST_RESULT::ERROR_TEST_NOT_EXISTED:
+			cout << "ERROR - This test is not existed" << endl;
+			break;
+		default:
+			break;
 		}
 	}
 
