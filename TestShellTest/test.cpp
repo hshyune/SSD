@@ -1,6 +1,7 @@
 ﻿#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "../TestShell/TestShell.cpp"
+#include "../TestShell/TestLogger.cpp"
 #include <stdexcept>
 
 using namespace std;
