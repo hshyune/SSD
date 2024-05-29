@@ -7,12 +7,8 @@
 #include "SSDRunner.cpp"
 #include "TestLogger.h"
 #include "Command.cpp"
-using namespace std;
 
-const string INVALID_PARAMETER = "INVALID PARAMETER";
-const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
-const string INVALID_DATA = "INVALID_DATA";
-const string INVALID_COMMAND = "INVALID COMMAND";
+using namespace std;
 
 class TestShell {
 public:
@@ -21,192 +17,83 @@ public:
 	}
 	~TestShell() {
 	}
-	void write(int address, string data) {
-		ssd.write(address, data);
-		this->logger.print("LBA: " + to_string(address) + " / DATA: " + data);
-	}
 
-	string read(int address) {
-		string data = ssd.read(address);
-		this->logger.print("LBA: " + to_string(address) + " / DATA: " + data);
-		return data;
-	}
+	vector<string> getInput() {
+		string input = "";
+		cout << "input : ";
+		getline(cin, input);
 
-	void exit() {
-		this->logger.print("EXIT");
-		this->isRunning = false;
-	}
-
-	int help() {
-		int lineCnt = 0;
-
-		ifstream file("help.txt");
-		string line = "";
-		if (file.is_open()) {
-			while (getline(file, line)) {
-				cout << line << endl;
-				lineCnt += 1;
-			}
-			file.close();
+		// split string
+		vector<string> args;
+		istringstream iss(input);
+		string tmp;
+		while (getline(iss, tmp, ' ')) {
+			args.push_back(tmp);
 		}
-		else {
-			cerr << "Unable to open help.txt!" << endl;
-		}
-		this->logger.print("HELP");
-		return lineCnt;
+		return args;
 	}
 
-	void fullwrite(string data) {
-		const int LBA_SIZE = 100;
-		this->logger.print("LBA: ALL / DATA: " + data);
-		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
-			this->write(address, data);
-		}
-		this->logger.print("DONE");
-	}
-
-	void fullread() {
-		const int LBA_SIZE = 100;
-		this->logger.print("LBA: ALL");
-		string readData = "";
-		for (int address = 0; address < LBA_SIZE; ++address) { // Address [0,99]
-			readData += to_string(address) + "," + this->read(address);
-		}
-		cout << readData << endl;
-		this->logger.print("DONE");
+	void runCommand(Command* command, std::vector<std::string>& args)
+	{
+		commandContoller.setCommand(command);
+		if (commandContoller.validate(args))
+			commandContoller.execute();
 	}
 
 	void run() {
 		// run
 		while (this->isRunning) {
-			// input command
-			string input = "";
-			cout << "input : ";
-			getline(cin, input);
+			//// input command
+			vector<string> args = this->getInput();
 
-			// validation
-			// split string
-			istringstream iss(input);
-			string tmp;
-			vector<string> args;
-			while (getline(iss, tmp, ' ')) {
-				args.push_back(tmp);
-			}
 			// empty input
 			if (args.size() == 0) continue;
 
 			// validation & execution
 			string cmd = args.at(0);
+			Command* command;
 			if (cmd == "read") {
-				ReadCommand* command = new ReadCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new ReadCommand(this->ssdRunner);
 			}
 			else if (cmd == "write") {
-				WriteCommand* command = new WriteCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
-			}
-			else if (cmd == "exit") {
-				ExitCommand* command = new ExitCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-					this->isRunning = false;
-				}
-				continue;
-			}
-			else if (cmd == "help") {
-				HelpCommand* command = new HelpCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new WriteCommand(this->ssdRunner);
 			}
 			else if (cmd == "fullwrite") {
-				FullwriteCommand* command = new FullwriteCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new FullwriteCommand(this->ssdRunner);
 			}
 			else if (cmd == "fullread") {
-				FullreadCommand* command = new FullreadCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new FullreadCommand(this->ssdRunner);
 			}
 			else if (cmd == "erase") {
-				EraseCommand* command = new EraseCommand(this->ssdRunner);
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				else {
-					continue;
-				}
+				command = new EraseCommand(this->ssdRunner);
 			}
 			else if (cmd == "erase_range") {
-				EraseRangeCommand* command = new EraseRangeCommand(this->ssdRunner);
+				command = new EraseRangeCommand(this->ssdRunner);
+			}
+			else if (cmd == "flush") {
+				command = new FlushCommand(this->ssdRunner);
+			}
+			else if (cmd == "exit") {
+				command = new ExitCommand();
 				commandContoller.setCommand(command);
+				if (commandContoller.validate(args)){
+					this->isRunning = false;
 
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
+					// flush and exit
+					command = new FlushCommand(this->ssdRunner);
+					commandContoller.setCommand(command);
 					commandContoller.execute();
-				}
-				else {
 					continue;
 				}
 			}
 			else {
-				InvalidCommand* command = new InvalidCommand();
-				commandContoller.setCommand(command);
-
-				bool isValid = commandContoller.validate(args);
-				if (isValid) {
-					commandContoller.execute();
-				}
-				continue;
+				command = new InvalidCommand();
 			}
+			runCommand(command, args);
 		}
 	}
 
 private:
-	SSDRunner ssd;
 	bool isRunning = true;
 	LoggerSingleton& logger{ LoggerSingleton::getInstance() };
 
