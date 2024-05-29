@@ -17,12 +17,18 @@ public:
 private:
 
 protected:
+	// exception msg
 	const string INVALID_PARAMETER = "INVALID PARAMETER";
 	const string INVALID_LBA_RANGE = "INVALID_LBA_RANGE";
 	const string INVALID_DATA = "INVALID_DATA";
 	const string INVALID_COMMAND = "INVALID COMMAND";
 	const string INVALID_SIZE = "INVALID SIZE";
 	const string INVALID_ADDRESS_RANGE = "END ADDRESS GT START ADDRESS";
+
+	// integers
+	const int MAX_LBA_ADDR = 99;
+	const int MIN_LBA_ADDR = 0;
+	const int MAX_ERASE_SIZE = 10;
 };
 
 class ReadCommand : public Command {
@@ -49,7 +55,7 @@ public:
 			int addr = stoi(args.at(1));
 
 			// range
-			if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+			if (addr < MIN_LBA_ADDR || MAX_LBA_ADDR < addr) throw runtime_error(this->INVALID_LBA_RANGE);
 		}
 		catch (exception e) {
 			cout << e.what() << endl;
@@ -89,7 +95,7 @@ public:
 			int addr = stoi(args.at(1));
 
 			// range
-			if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+			if (addr < MIN_LBA_ADDR || MAX_LBA_ADDR < addr) throw runtime_error(this->INVALID_LBA_RANGE);
 
 			// data validation -> 0x00000000~0xFFFFFFFF
 			string data = args.at(2);
@@ -299,10 +305,10 @@ public:
 			int addr = stoi(args.at(1));
 
 			// range
-			if (addr < 0 || 99 < addr) throw runtime_error(this->INVALID_LBA_RANGE);
+			if (addr < MIN_LBA_ADDR || MAX_LBA_ADDR < addr) throw runtime_error(this->INVALID_LBA_RANGE);
 			// string to integer
 			int size = stoi(args.at(2));
-			if (size > 10) throw runtime_error(this->INVALID_SIZE);
+			if (size > MAX_ERASE_SIZE) throw runtime_error(this->INVALID_SIZE);
 		}
 		catch (exception e) {
 			cout << e.what() << endl;
@@ -332,10 +338,10 @@ public:
 	void execute() override {		
 		while (true) {
 			int size = endAddr - startAddr;
-			if (size > 10) {
+			if (size > MAX_ERASE_SIZE) {
 				//cout << "erase " << to_string(startAddr) << " 10" << endl;
-				this->ssdRunner->erase(this->startAddr, 10);
-				startAddr += 10;
+				this->ssdRunner->erase(this->startAddr, MAX_ERASE_SIZE);
+				startAddr += MAX_ERASE_SIZE;
 			}
 			else {
 				//cout << "erase " << to_string(startAddr) << " " << to_string(size) << endl;
@@ -358,12 +364,12 @@ public:
 			// string to integer
 			int startAddr = stoi(args.at(1));
 			// range
-			if (startAddr < 0 || 99 < startAddr) throw runtime_error(this->INVALID_LBA_RANGE);
+			if (startAddr < MIN_LBA_ADDR || MAX_LBA_ADDR < startAddr) throw runtime_error(this->INVALID_LBA_RANGE);
 
 			// string to integer
 			int endAddr = stoi(args.at(2));
 			// range
-			if (endAddr < 0 || 99 < endAddr) throw runtime_error(this->INVALID_LBA_RANGE);
+			if (endAddr < MIN_LBA_ADDR || MAX_LBA_ADDR < endAddr) throw runtime_error(this->INVALID_LBA_RANGE);
 
 			// start end gt
 			if (endAddr <= startAddr) throw runtime_error(this->INVALID_ADDRESS_RANGE);
