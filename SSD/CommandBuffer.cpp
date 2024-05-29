@@ -172,7 +172,6 @@ void CommandBuffer::flush(void) {
 
 size_t CommandBuffer::getBufferSize() {
 	auto commandBuffer = LoadFromFile();
-	cout << "Buffer size: " << commandBuffer.size() << endl;
 	return commandBuffer.size();
 }
 
