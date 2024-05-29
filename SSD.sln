@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSDTest", "SSDTest\SSDTest.vcxproj", "{9A4CFDFB-0AC5-4BF2-9BD2-10A138D1E3D5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestShell", "TestShell\TestShell.vcxproj", "{D026D407-4842-42DF-BD68-461868B42ADB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EF634C15-B154-4720-AA88-0E4A207909A7} = {EF634C15-B154-4720-AA88-0E4A207909A7}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestShellTest", "TestShellTest\TestShellTest.vcxproj", "{5FBB2BF9-A8C8-44D6-ACC5-221D6B8D0A63}"
 EndProject
