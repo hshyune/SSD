@@ -8,3 +8,4 @@ fullwrite 0xCAFECAFE
 fullwrite 0xCAFECAFE
 fullwrite 0xCAFECAFE
 fullread
+flush

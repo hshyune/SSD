@@ -174,8 +174,8 @@ public:
 
 	int getTestResult(const string& expectedFilePath)
 	{
-		string expectedData = getDataFromFile(PATH_RESULT);
-		string nandData = getDataFromFile(PATH_RESULT);
+		string expectedData = getDataFromFile(expectedFilePath);
+		string nandData = getDataFromFile(PATH_NAND);
 
 		if (expectedData == "-1")
 			return TEST_RESULT::ERROR_CANNOT_OPEN_FILE;
@@ -206,6 +206,13 @@ public:
 		}
 	}
 
+	void runCommand(Command* command, std::vector<std::string>& args)
+	{
+		commandContoller.setCommand(command);
+		if (commandContoller.validate(args))
+			commandContoller.execute();
+	}
+
 	void runTestListUsingFile(string filePath)
 	{
 		LoggerSingleton::getInstance().print("Run all of tests in " + filePath + " using text file");
@@ -231,69 +238,37 @@ public:
 
 						// validation & execution
 						string cmd = args.at(0);
+						Command* command;
 						if (cmd == "read") {
-							ReadCommand* command = new ReadCommand(this->ssdRunner);
-							commandContoller.setCommand(command);
-
-							bool isValid = commandContoller.validate(args);
-							if (isValid) {
-								commandContoller.execute();
-							}
-							else {
-								continue;
-							}
+							command = new ReadCommand(this->ssdRunner);
 						}
 						else if (cmd == "write") {
-							WriteCommand* command = new WriteCommand(this->ssdRunner);
-							commandContoller.setCommand(command);
-
-							bool isValid = commandContoller.validate(args);
-							if (isValid) {
-								commandContoller.execute();
-							}
-							else {
-								continue;
-							}
+							command = new WriteCommand(this->ssdRunner);
 						}
 						else if (cmd == "fullwrite") {
-							FullwriteCommand* command = new FullwriteCommand(this->ssdRunner);
-							commandContoller.setCommand(command);
-
-							bool isValid = commandContoller.validate(args);
-							if (isValid) {
-								commandContoller.execute();
-							}
-							else {
-								continue;
-							}
+							command = new FullwriteCommand(this->ssdRunner);
 						}
 						else if (cmd == "fullread") {
-							FullreadCommand* command = new FullreadCommand(this->ssdRunner);
-							commandContoller.setCommand(command);
-
-							bool isValid = commandContoller.validate(args);
-							if (isValid) {
-								commandContoller.execute();
-							}
-							else {
-								continue;
-							}
+							command = new FullreadCommand(this->ssdRunner);
+						}
+						else if (cmd == "erase") {
+							command = new EraseCommand(this->ssdRunner);
+						}
+						else if (cmd == "erase_range") {
+							command = new EraseRangeCommand(this->ssdRunner);
+						}
+						else if (cmd == "flush") {
+							command = new FlushCommand(this->ssdRunner);
 						}
 						else {
-							InvalidCommand* command = new InvalidCommand();
-							commandContoller.setCommand(command);
-
-							bool isValid = commandContoller.validate(args);
-							if (isValid) {
-								commandContoller.execute();
-							}
-							continue;
+							command = new InvalidCommand();
 						}
+						runCommand(command, args);
 					}
 					testFile.close();
 					// pass / fail 판단
 					string expectedFileName = "expected_" + testName + ".txt";
-					printResult(getTestResult(expectedFileName));
+					printResult(getTestResult(PATH_RESOURCE_FOLDER + expectedFileName));
 				}
 				else {
 					cout << "This test is not existed : " << testFileName << endl;

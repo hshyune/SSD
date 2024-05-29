@@ -18,3 +18,4 @@ write 0 0x99999999
 read 0
 write 0 0xAAAAAAAA
 read 0
+flush
