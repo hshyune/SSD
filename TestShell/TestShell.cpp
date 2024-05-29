@@ -73,6 +73,9 @@ public:
 			else if (cmd == "flush") {
 				command = new FlushCommand(this->ssdRunner);
 			}
+			else if (cmd == "help") {
+				command = new HelpCommand();
+			}
 			else if (cmd == "exit") {
 				command = new ExitCommand();
 				commandContoller.setCommand(command);

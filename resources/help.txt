@@ -1,15 +1,15 @@
-==========================================
+===================================================
 [USAGE]
-===============================================
+===================================================
 - Write Mode
 ssd W [address] [value]
 	- address : 0~99
 	- value : 0x00000000~0xFFFFFFFF
-===============================================
+===================================================
 - Read Mode
 	ssd R [address]
 	: will return value in SSD.
-===============================================
+===================================================
 - Sequencial Mode
 	ssd
 	: type ssd and using several commands.
@@ -21,4 +21,7 @@ Can use this command in this mode.
 	help		: help
 	Fullwrite	: fullwrite [VALUE] : Write same value all LBA.
 	Fullread	: fullread	: Read all LBA value and show display.
-===============================================
+	erase		: erase [ADDRESS] [SIZE]
+	erase_range	: erase_range [START ADDRESS] [END ADDRESS]
+	flush		: flush
+===================================================
